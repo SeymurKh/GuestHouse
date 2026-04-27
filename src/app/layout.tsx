@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   keywords: ["Габала", "Азербайджан", "гостевой дом", "отдых в горах", "бронирование", "туризм", "природа"],
   authors: [{ name: "Guest House Gabala" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/favicon.png",
   },
   openGraph: {
     title: "Guest House Gabala | Отдых в горах Азербайджана",

@@ -139,6 +139,15 @@ html {
   background: oklch(0.95 0.01 85);
 }
 
+/* Hide Next.js dev indicator */
+body > div:first-of-type[style*="position: fixed"][style*="bottom"] {
+  display: none !important;
+}
+
+nextjs-portal {
+  display: none !important;
+}
+
 ::-webkit-scrollbar-thumb {
   background: oklch(0.45 0.12 145);
   border-radius: 4px;

@@ -544,14 +544,12 @@ export default function GuestHouseLanding() {
             ].map((item, i) => (
               <div 
                 key={i} 
-                className={`relative overflow-hidden rounded-xl group cursor-pointer ${
-                  i === 0 || i === 5 ? 'row-span-2' : ''
-                }`}
+                className="relative overflow-hidden rounded-xl group cursor-pointer aspect-square"
               >
                 <img 
                   src={item.src} 
                   alt={item.title}
-                  className="w-full h-48 md:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-4 left-4 text-white">
