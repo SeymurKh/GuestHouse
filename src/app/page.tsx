@@ -351,41 +351,41 @@ export default function GuestHouseLanding() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {rooms.map((room) => (
-              <Card key={room.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300">
-                <div className="relative h-64 overflow-hidden">
+              <Card key={room.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+                <div className="relative h-48 overflow-hidden">
                   <img 
                     src={JSON.parse(room.images)[0] || '/images/hero-bg.jpg'} 
                     alt={room.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-white">
-                      {room.price} AZN / ночь
+                  <div className="absolute top-3 right-3">
+                    <Badge className="bg-primary text-white text-sm">
+                      {room.price} AZN
                     </Badge>
                   </div>
                 </div>
-                <CardHeader>
+                <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">{room.name}</CardTitle>
-                    <div className="flex items-center text-muted-foreground text-sm">
-                      <Users className="w-4 h-4 mr-1" />
-                      до {room.capacity} гостей
+                    <CardTitle className="text-lg">{room.name}</CardTitle>
+                    <div className="flex items-center text-muted-foreground text-xs">
+                      <Users className="w-3 h-3 mr-1" />
+                      {room.capacity}
                     </div>
                   </div>
-                  <CardDescription>{room.description}</CardDescription>
+                  <CardDescription className="line-clamp-2 text-sm">{room.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {parseAmenities(room.amenities).slice(0, 5).map((amenity: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                <CardContent className="flex flex-col flex-1 mt-auto">
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {parseAmenities(room.amenities).slice(0, 3).map((amenity: string, i: number) => (
+                      <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs px-2 py-0.5">
                         {getAmenityIcon(amenity)}
                         {amenity}
                       </Badge>
                     ))}
-                    {parseAmenities(room.amenities).length > 5 && (
-                      <Badge variant="outline">+{parseAmenities(room.amenities).length - 5}</Badge>
+                    {parseAmenities(room.amenities).length > 3 && (
+                      <Badge variant="outline" className="text-xs px-2 py-0.5">+{parseAmenities(room.amenities).length - 3}</Badge>
                     )}
                   </div>
                   <Dialog open={bookingModalOpen && selectedRoom?.id === room.id} onOpenChange={(open) => {
@@ -393,7 +393,7 @@ export default function GuestHouseLanding() {
                     if (open) setSelectedRoom(room)
                   }}>
                     <DialogTrigger asChild>
-                      <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setSelectedRoom(room)}>
+                      <Button size="sm" className="w-full bg-primary hover:bg-primary/90 mt-auto" onClick={() => setSelectedRoom(room)}>
                         <CalendarIcon className="w-4 h-4 mr-2" />
                         Забронировать
                       </Button>
