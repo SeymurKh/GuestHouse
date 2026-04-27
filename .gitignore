@@ -50,5 +50,11 @@ test
 prompt
 
 server.log
-# Skills directory
+
+# System files (not part of the project)
 /skills/
+/examples/
+/download/
+Caddyfile
+.zscripts/
+agent-ctx/
