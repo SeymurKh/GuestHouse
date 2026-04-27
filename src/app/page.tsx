@@ -717,14 +717,15 @@ export default function GuestHouseLanding() {
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Управление бронированиями</DialogTitle>
-                <DialogDescription>Просмотр и управление заявками на бронирование</DialogDescription>
+                <DialogTitle>Панель управления</DialogTitle>
+                <DialogDescription>Управление бронированиями и номерами</DialogDescription>
               </DialogHeader>
               <Tabs defaultValue="bookings">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="bookings">Бронирования</TabsTrigger>
                   <TabsTrigger value="pending">Ожидающие</TabsTrigger>
                   <TabsTrigger value="confirmed">Подтверждённые</TabsTrigger>
+                  <TabsTrigger value="rooms">Номера</TabsTrigger>
                 </TabsList>
                 <TabsContent value="bookings" className="mt-4">
                   <div className="space-y-4">
@@ -825,6 +826,57 @@ export default function GuestHouseLanding() {
                         </Card>
                       ))
                     )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="rooms" className="mt-4">
+                  <div className="space-y-4">
+                    {rooms.map((room) => (
+                      <Card key={room.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <p className="font-medium">{room.name}</p>
+                              <p className="text-sm text-muted-foreground">до {room.capacity} гостей</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">Цена:</span>
+                              <Input 
+                                type="number" 
+                                className="w-24" 
+                                defaultValue={room.price}
+                                id={`price-${room.id}`}
+                              />
+                              <span className="text-sm">AZN</span>
+                              <Button 
+                                size="sm" 
+                                onClick={async () => {
+                                  const input = document.getElementById(`price-${room.id}`) as HTMLInputElement
+                                  const newPrice = input?.value
+                                  if (newPrice) {
+                                    try {
+                                      const res = await fetch('/api/rooms', {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ id: room.id, price: newPrice })
+                                      })
+                                      if (res.ok) {
+                                        // Обновляем локальное состояние
+                                        setRooms(rooms.map(r => r.id === room.id ? {...r, price: parseFloat(newPrice)} : r))
+                                        alert('Цена обновлена!')
+                                      }
+                                    } catch {
+                                      alert('Ошибка при обновлении')
+                                    }
+                                  }
+                                }}
+                              >
+                                Сохранить
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </TabsContent>
               </Tabs>

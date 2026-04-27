@@ -45,3 +45,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Ошибка при создании номера' }, { status: 500 })
   }
 }
+
+// PUT - обновить номер (цена, название и т.д.)
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { id, name, description, price, capacity, amenities, isAvailable } = body
+
+    const updateData: Record<string, unknown> = {}
+    
+    if (name !== undefined) updateData.name = name
+    if (description !== undefined) updateData.description = description
+    if (price !== undefined) updateData.price = parseFloat(price)
+    if (capacity !== undefined) updateData.capacity = parseInt(capacity)
+    if (amenities !== undefined) updateData.amenities = JSON.stringify(amenities)
+    if (isAvailable !== undefined) updateData.isAvailable = isAvailable
+
+    const room = await db.room.update({
+      where: { id },
+      data: updateData
+    })
+
+    return NextResponse.json(room)
+  } catch (error) {
+    console.error('Error updating room:', error)
+    return NextResponse.json({ error: 'Ошибка при обновлении номера' }, { status: 500 })
+  }
+}
