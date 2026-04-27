@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Номера гостевого дома
+model Room {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  capacity    Int      // Количество гостей
+  amenities   String   // Удобства (JSON строка)
+  images      String   // URLs изображений (JSON строка)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bookings    Booking[]
+}
+
+// Бронирования
+model Booking {
+  id          String   @id @default(cuid())
+  roomId      String
+  room        Room     @relation(fields: [roomId], references: [id])
+  guestName   String
+  guestPhone  String
+  guestEmail  String?
+  checkIn     DateTime
+  checkOut    DateTime
+  guests      Int
+  status      String   @default("pending") // pending, confirmed, cancelled
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Отзывы гостей
+model Review {
+  id        String   @id @default(cuid())
+  guestName String
+  rating    Int      // 1-5
+  comment   String
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Настройки сайта
+model SiteSettings {
+  id          String @id @default(cuid())
+  phone       String
+  email       String?
+  address     String?
+  description String?
+}
