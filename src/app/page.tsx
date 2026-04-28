@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,7 @@ import {
   ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
   Flame, Car, Utensils, Heart,
-  Settings, Check, ArrowRight, Plus, Trash2, ChevronDown
+  Settings, Check, ArrowRight, Plus, Trash2, ChevronDown, Upload, Loader2
 } from 'lucide-react'
 
 // Types
@@ -56,6 +56,10 @@ export default function GuestHouseLanding() {
   const [adminPassword, setAdminPassword] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [editingRoom, setEditingRoom] = useState<Room | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  
+  // File input ref
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Slider state for hero
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -70,7 +74,6 @@ export default function GuestHouseLanding() {
         await fetch('/api/init', { method: 'POST' })
         const roomsRes = await fetch('/api/rooms')
         const roomsData = await roomsRes.json()
-        // Only take first 2 rooms
         setRooms(roomsData.slice(0, 2))
         const reviewsRes = await fetch('/api/reviews')
         const reviewsData = await reviewsRes.json()
@@ -151,7 +154,74 @@ export default function GuestHouseLanding() {
     return icons[amenity] || <Sparkles className="w-4 h-4" />
   }
 
-  // Add image to editing room
+  // Upload file to server
+  const uploadFile = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingImage(true)
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        return data.url
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Ошибка при загрузке')
+        return null
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Ошибка при загрузке файла')
+      return null
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  // Delete file from server
+  const deleteFile = async (imageUrl: string): Promise<boolean> => {
+    // Only delete files from /uploads/ folder
+    if (!imageUrl.startsWith('/uploads/')) {
+      return true // Don't delete default images
+    }
+    
+    try {
+      const res = await fetch(`/api/upload?url=${encodeURIComponent(imageUrl)}`, {
+        method: 'DELETE'
+      })
+      return res.ok
+    } catch (error) {
+      console.error('Delete error:', error)
+      return false
+    }
+  }
+
+  // Handle file selection
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !editingRoom) return
+    
+    const url = await uploadFile(file)
+    if (url) {
+      const currentImages = parseImages(editingRoom.images)
+      setEditingRoom({
+        ...editingRoom,
+        images: JSON.stringify([...currentImages, url])
+      })
+    }
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  // Add image to editing room (from URL - optional)
   const addImageToRoom = (imageUrl: string) => {
     if (!editingRoom || !imageUrl.trim()) return
     const currentImages = parseImages(editingRoom.images)
@@ -161,10 +231,16 @@ export default function GuestHouseLanding() {
     })
   }
 
-  // Remove image from editing room
-  const removeImageFromRoom = (index: number) => {
+  // Remove image from editing room and delete from server
+  const removeImageFromRoom = async (index: number) => {
     if (!editingRoom) return
     const currentImages = parseImages(editingRoom.images)
+    const imageToDelete = currentImages[index]
+    
+    // Delete file from server
+    await deleteFile(imageToDelete)
+    
+    // Remove from room data
     setEditingRoom({
       ...editingRoom,
       images: JSON.stringify(currentImages.filter((_: string, i: number) => i !== index))
@@ -203,6 +279,15 @@ export default function GuestHouseLanding() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
+      
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -722,7 +807,7 @@ export default function GuestHouseLanding() {
                           <Input value={parseAmenities(editingRoom.amenities).join(', ')} onChange={(e) => setEditingRoom({...editingRoom, amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))})} />
                         </div>
                         
-                        {/* Simple Image Management */}
+                        {/* Image Management */}
                         <div>
                           <Label className="flex items-center gap-2 mb-2">
                             Изображения
@@ -736,45 +821,39 @@ export default function GuestHouseLanding() {
                                 <img src={img} alt="" className="w-full h-full object-cover" />
                                 <button
                                   onClick={() => removeImageFromRoom(i)}
-                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                                  title="Удалить изображение"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
                             ))}
-                            {/* Add Image Placeholder */}
-                            <div className="aspect-video rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
-                              const url = prompt('Введите URL изображения:')
-                              if (url) addImageToRoom(url)
-                            }}>
-                              <div className="text-center text-muted-foreground">
-                                <Plus className="w-6 h-6 mx-auto mb-1" />
-                                <span className="text-xs">Добавить</span>
-                              </div>
-                            </div>
                           </div>
                           
-                          {/* URL Input */}
-                          <div className="flex gap-2">
-                            <Input 
-                              id={`img-url-${room.id}`}
-                              placeholder="Вставьте URL изображения" 
-                              className="flex-1"
-                            />
-                            <Button 
-                              size="icon" 
-                              variant="secondary"
-                              onClick={() => {
-                                const input = document.getElementById(`img-url-${room.id}`) as HTMLInputElement
-                                if (input?.value) {
-                                  addImageToRoom(input.value)
-                                  input.value = ''
-                                }
-                              }}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          {/* Upload Button */}
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                          >
+                            {uploadingImage ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Загрузка...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Загрузить фото с компьютера
+                              </>
+                            )}
+                          </Button>
+                          
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Поддерживаемые форматы: JPG, PNG, GIF, WebP
+                          </p>
                         </div>
                         
                         <div className="flex gap-2">
