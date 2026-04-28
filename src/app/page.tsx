@@ -124,17 +124,35 @@ export default function GuestHouseLanding() {
     setRoomModalOpen(true)
   }
 
-  // Parse helpers
-  const parseAmenities = (amenitiesStr: string) => {
-    try { return JSON.parse(amenitiesStr) } catch { return [] }
+  // Parse helpers - with type safety
+  const parseAmenities = (amenitiesStr: string | null | undefined): string[] => {
+    if (!amenitiesStr) return []
+    try {
+      const parsed = JSON.parse(amenitiesStr)
+      return Array.isArray(parsed) ? parsed : []
+    } catch { 
+      return [] 
+    }
   }
 
-  const parseAdvantages = (advantagesStr: string) => {
-    try { return JSON.parse(advantagesStr) } catch { return [] }
+  const parseAdvantages = (advantagesStr: string | null | undefined): string[] => {
+    if (!advantagesStr) return []
+    try {
+      const parsed = JSON.parse(advantagesStr)
+      return Array.isArray(parsed) ? parsed : []
+    } catch { 
+      return [] 
+    }
   }
 
-  const parseImages = (imagesStr: string) => {
-    try { return JSON.parse(imagesStr) } catch { return [] }
+  const parseImages = (imagesStr: string | null | undefined): string[] => {
+    if (!imagesStr) return []
+    try {
+      const parsed = JSON.parse(imagesStr)
+      return Array.isArray(parsed) ? parsed : []
+    } catch { 
+      return [] 
+    }
   }
 
   // Amenity icons

@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Helper to safely stringify JSON
+function safeStringify(value: unknown): string {
+  if (typeof value === 'string') {
+    // Already a string - check if it's valid JSON
+    try {
+      JSON.parse(value)
+      return value // Already valid JSON string
+    } catch {
+      return JSON.stringify([value]) // Single value, wrap in array
+    }
+  }
+  return JSON.stringify(value || [])
+}
+
 // GET - получить все домики
 export async function GET() {
   try {
@@ -23,14 +37,14 @@ export async function POST(request: NextRequest) {
 
     const room = await db.room.create({
       data: {
-        name,
+        name: name || '',
         description: description || '',
         conditions: conditions || '',
-        advantages: JSON.stringify(advantages || []),
+        advantages: safeStringify(advantages),
         price: parseFloat(price) || 0,
         capacity: parseInt(capacity) || 2,
-        amenities: JSON.stringify(amenities || []),
-        images: JSON.stringify(images || []),
+        amenities: safeStringify(amenities),
+        images: safeStringify(images),
       }
     })
 
@@ -47,16 +61,20 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { id, name, description, conditions, advantages, price, capacity, amenities, images, isAvailable } = body
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID домика не указан' }, { status: 400 })
+    }
+
     const updateData: Record<string, unknown> = {}
     
     if (name !== undefined) updateData.name = name
     if (description !== undefined) updateData.description = description
     if (conditions !== undefined) updateData.conditions = conditions
-    if (advantages !== undefined) updateData.advantages = JSON.stringify(advantages)
+    if (advantages !== undefined) updateData.advantages = safeStringify(advantages)
     if (price !== undefined) updateData.price = parseFloat(price)
     if (capacity !== undefined) updateData.capacity = parseInt(capacity)
-    if (amenities !== undefined) updateData.amenities = JSON.stringify(amenities)
-    if (images !== undefined) updateData.images = JSON.stringify(images)
+    if (amenities !== undefined) updateData.amenities = safeStringify(amenities)
+    if (images !== undefined) updateData.images = safeStringify(images)
     if (isAvailable !== undefined) updateData.isAvailable = isAvailable
 
     const room = await db.room.update({
@@ -81,7 +99,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID домика не указан' }, { status: 400 })
     }
 
-    // Мягкое удаление - просто помечаем как недоступный
     const room = await db.room.update({
       where: { id },
       data: { isAvailable: false }
