@@ -71,8 +71,8 @@ export async function PUT(request: NextRequest) {
     if (description !== undefined) updateData.description = description
     if (conditions !== undefined) updateData.conditions = conditions
     if (advantages !== undefined) updateData.advantages = safeStringify(advantages)
-    if (price !== undefined) updateData.price = parseFloat(price)
-    if (capacity !== undefined) updateData.capacity = parseInt(capacity)
+    if (price !== undefined) updateData.price = parseFloat(price) || 0
+    if (capacity !== undefined) updateData.capacity = parseInt(capacity) || 2
     if (amenities !== undefined) updateData.amenities = safeStringify(amenities)
     if (images !== undefined) updateData.images = safeStringify(images)
     if (isAvailable !== undefined) updateData.isAvailable = isAvailable

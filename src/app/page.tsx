@@ -58,8 +58,9 @@ export default function GuestHouseLanding() {
   const [editingRoom, setEditingRoom] = useState<Room | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   
-  // File input ref
+  // File input ref - use a key to force re-render
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [fileInputKey, setFileInputKey] = useState(0)
   
   // Slider state for hero
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -221,9 +222,10 @@ export default function GuestHouseLanding() {
 
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !editingRoom) return
+    const files = e.target.files
+    if (!files || files.length === 0 || !editingRoom) return
     
+    const file = files[0]
     const url = await uploadFile(file)
     if (url) {
       const currentImages = parseImages(editingRoom.images)
@@ -233,10 +235,16 @@ export default function GuestHouseLanding() {
       })
     }
     
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    // Reset input by changing key
+    setFileInputKey(prev => prev + 1)
+  }
+  
+  // Trigger file input click
+  const triggerFileInput = () => {
+    // Use setTimeout to ensure the click happens after any pending state updates
+    setTimeout(() => {
+      fileInputRef.current?.click()
+    }, 0)
   }
 
   // Add image to editing room (from URL - optional)
@@ -297,8 +305,9 @@ export default function GuestHouseLanding() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
-      {/* Hidden file input */}
+      {/* Hidden file input - use key to force reset */}
       <input
+        key={fileInputKey}
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,image/gif,image/webp"
@@ -802,38 +811,84 @@ export default function GuestHouseLanding() {
                   <Card key={room.id} className="overflow-hidden">
                     {editingRoom?.id === room.id ? (
                       <CardContent className="p-4 space-y-4">
+                        {/* 1. Основная информация */}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label>Название</Label>
-                            <Input value={editingRoom.name} onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})} />
+                            <Label htmlFor="edit-name">Название</Label>
+                            <Input 
+                              id="edit-name"
+                              value={editingRoom.name} 
+                              onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})} 
+                            />
                           </div>
                           <div>
-                            <Label>Цена (AZN)</Label>
-                            <Input type="number" value={editingRoom.price} onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value)})} />
+                            <Label htmlFor="edit-price">Цена (AZN)</Label>
+                            <Input 
+                              id="edit-price"
+                              type="number" 
+                              value={editingRoom.price} 
+                              onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value) || 0})} 
+                            />
                           </div>
                         </div>
                         
                         <div>
-                          <Label>Описание</Label>
-                          <Textarea value={editingRoom.description} onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})} rows={2} />
+                          <Label htmlFor="edit-capacity">Вместимость (гостей)</Label>
+                          <Input 
+                            id="edit-capacity"
+                            type="number" 
+                            value={editingRoom.capacity} 
+                            onChange={(e) => setEditingRoom({...editingRoom, capacity: parseInt(e.target.value) || 1})} 
+                          />
                         </div>
                         
+                        {/* 2. Описание */}
                         <div>
-                          <Label>Условия проживания</Label>
-                          <Textarea value={editingRoom.conditions} onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})} rows={3} placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00" />
+                          <Label htmlFor="edit-description">Описание</Label>
+                          <Textarea 
+                            id="edit-description"
+                            value={editingRoom.description} 
+                            onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})} 
+                            rows={3} 
+                          />
                         </div>
                         
+                        {/* 3. Условия проживания */}
                         <div>
-                          <Label>Преимущества (каждое с новой строки)</Label>
-                          <Textarea value={parseAdvantages(editingRoom.advantages).join('\n')} onChange={(e) => setEditingRoom({...editingRoom, advantages: JSON.stringify(e.target.value.split('\n').filter(Boolean))})} rows={3} />
+                          <Label htmlFor="edit-conditions">Условия проживания</Label>
+                          <Textarea 
+                            id="edit-conditions"
+                            value={editingRoom.conditions || ''} 
+                            onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})} 
+                            rows={4} 
+                            placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• Курение запрещено" 
+                          />
                         </div>
                         
+                        {/* 4. Преимущества */}
                         <div>
-                          <Label>Удобства (через запятую)</Label>
-                          <Input value={parseAmenities(editingRoom.amenities).join(', ')} onChange={(e) => setEditingRoom({...editingRoom, amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))})} />
+                          <Label htmlFor="edit-advantages">Преимущества (каждое с новой строки)</Label>
+                          <Textarea 
+                            id="edit-advantages"
+                            value={parseAdvantages(editingRoom.advantages).join('\n')} 
+                            onChange={(e) => setEditingRoom({...editingRoom, advantages: JSON.stringify(e.target.value.split('\n').map(s => s.trim()).filter(Boolean))})} 
+                            rows={4}
+                            placeholder="Красивый вид&#10;Тихое место&#10;Камин"
+                          />
                         </div>
                         
-                        {/* Image Management */}
+                        {/* 5. Удобства */}
+                        <div>
+                          <Label htmlFor="edit-amenities">Удобства (через запятую)</Label>
+                          <Input 
+                            id="edit-amenities"
+                            value={parseAmenities(editingRoom.amenities).join(', ')} 
+                            onChange={(e) => setEditingRoom({...editingRoom, amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))})} 
+                            placeholder="Wi-Fi, Камин, ТВ, Кухня"
+                          />
+                        </div>
+                        
+                        {/* 6. Изображения */}
                         <div>
                           <Label className="flex items-center gap-2 mb-2">
                             Изображения
@@ -843,9 +898,10 @@ export default function GuestHouseLanding() {
                           {/* Image Previews */}
                           <div className="grid grid-cols-3 gap-2 mb-3">
                             {parseImages(editingRoom.images).map((img: string, i: number) => (
-                              <div key={i} className="relative group aspect-video rounded overflow-hidden border">
-                                <img src={img} alt="" className="w-full h-full object-cover" />
+                              <div key={i} className="relative group aspect-video rounded overflow-hidden border bg-muted">
+                                <img src={img} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
                                 <button
+                                  type="button"
                                   onClick={() => removeImageFromRoom(i)}
                                   className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                                   title="Удалить изображение"
@@ -854,6 +910,11 @@ export default function GuestHouseLanding() {
                                 </button>
                               </div>
                             ))}
+                            {parseImages(editingRoom.images).length === 0 && (
+                              <div className="col-span-3 text-center py-4 text-muted-foreground text-sm">
+                                Нет изображений. Загрузите фото.
+                              </div>
+                            )}
                           </div>
                           
                           {/* Upload Button */}
@@ -861,7 +922,7 @@ export default function GuestHouseLanding() {
                             type="button" 
                             variant="outline" 
                             className="w-full"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={triggerFileInput}
                             disabled={uploadingImage}
                           >
                             {uploadingImage ? (
@@ -882,8 +943,8 @@ export default function GuestHouseLanding() {
                           </p>
                         </div>
                         
-                        <div className="flex gap-2">
-                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary">Сохранить</Button>
+                        <div className="flex gap-2 pt-2">
+                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary flex-1">Сохранить изменения</Button>
                           <Button variant="outline" onClick={() => setEditingRoom(null)}>Отмена</Button>
                         </div>
                       </CardContent>
