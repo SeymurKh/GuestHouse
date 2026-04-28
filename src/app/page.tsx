@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,7 +12,7 @@ import {
   Mountain, Trees, Phone, Mail, MapPin, Star, Users, 
   ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
-  Flame, Car, Utensils, Heart, MessageCircle, Send,
+  Flame, Car, Utensils, Heart,
   Settings, Check, ArrowRight, Plus, Trash2, ChevronDown
 } from 'lucide-react'
 
@@ -60,13 +60,8 @@ export default function GuestHouseLanding() {
   // Slider state for hero
   const [currentSlide, setCurrentSlide] = useState(0)
   
-  // Refs for scroll
-  const heroRef = useRef<HTMLElement>(null)
-  const featuresRef = useRef<HTMLElement>(null)
-  const roomsRef = useRef<HTMLElement>(null)
-  const galleryRef = useRef<HTMLElement>(null)
-  const reviewsRef = useRef<HTMLElement>(null)
-  const contactRef = useRef<HTMLElement>(null)
+  // Review slider state
+  const [currentReview, setCurrentReview] = useState(0)
 
   // Initialize data
   useEffect(() => {
@@ -75,7 +70,8 @@ export default function GuestHouseLanding() {
         await fetch('/api/init', { method: 'POST' })
         const roomsRes = await fetch('/api/rooms')
         const roomsData = await roomsRes.json()
-        setRooms(roomsData)
+        // Only take first 2 rooms
+        setRooms(roomsData.slice(0, 2))
         const reviewsRes = await fetch('/api/reviews')
         const reviewsData = await reviewsRes.json()
         setReviews(reviewsData)
@@ -96,9 +92,18 @@ export default function GuestHouseLanding() {
     if (rooms.length === 0) return
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % rooms.length)
-    }, 4000)
+    }, 5000)
     return () => clearInterval(interval)
   }, [rooms.length])
+
+  // Auto-slide effect for reviews
+  useEffect(() => {
+    if (reviews.length === 0) return
+    const interval = setInterval(() => {
+      setCurrentReview((prev) => (prev + 1) % reviews.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [reviews.length])
 
   // Admin login
   const handleAdminLogin = () => {
@@ -197,7 +202,7 @@ export default function GuestHouseLanding() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -209,7 +214,6 @@ export default function GuestHouseLanding() {
           <nav className="hidden md:flex items-center gap-6">
             <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors">Домики</a>
             <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors">Галерея</a>
-            <a href="#reviews" className="text-muted-foreground hover:text-primary transition-colors">Отзывы</a>
             <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors">Контакты</a>
           </nav>
           
@@ -234,7 +238,6 @@ export default function GuestHouseLanding() {
             <nav className="flex flex-col gap-4">
               <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Домики</a>
               <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Галерея</a>
-              <a href="#reviews" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Отзывы</a>
               <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Контакты</a>
               <Button asChild className="bg-primary hover:bg-primary/90 w-full">
                 <a href={`tel:${phone}`}>
@@ -248,9 +251,9 @@ export default function GuestHouseLanding() {
       </header>
 
       {/* Hero Section - Full Screen */}
-      <section ref={heroRef} className="min-h-screen flex items-center pt-20 pb-16 bg-gradient-to-br from-background via-muted/30 to-background snap-start snap-always">
+      <section className="min-h-screen flex items-center pt-20 pb-8 bg-gradient-to-br from-background via-muted/30 to-background snap-start">
         <div className="container mx-auto px-4 h-full">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-9rem)]">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             {/* Left Side - Welcome Text */}
             <div className="space-y-6 lg:space-y-8">
               <Badge className="bg-primary/10 text-primary border-primary/20">
@@ -281,10 +284,10 @@ export default function GuestHouseLanding() {
               </div>
             </div>
             
-            {/* Right Side - Sliding Images */}
+            {/* Right Side - Sliding Images (only 2 rooms) */}
             <div className="relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
               <div className="absolute inset-0 flex items-center justify-center">
-                {rooms.map((room, index) => (
+                {rooms.slice(0, 2).map((room, index) => (
                   <div 
                     key={room.id}
                     className={`absolute w-full max-w-md transition-all duration-1000 ease-in-out ${
@@ -321,7 +324,7 @@ export default function GuestHouseLanding() {
               
               {/* Slide Indicators */}
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
-                {rooms.map((_, index) => (
+                {rooms.slice(0, 2).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
@@ -342,21 +345,21 @@ export default function GuestHouseLanding() {
       </section>
 
       {/* Features Section - Compact */}
-      <section ref={featuresRef} className="py-12 bg-muted/30 snap-start snap-always">
+      <section className="py-10 bg-muted/30 snap-start">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: Mountain, title: 'Горные виды', desc: 'Кавказские горы' },
               { icon: Trees, title: 'Лесная тишина', desc: 'Густые леса' },
               { icon: Heart, title: 'Уют', desc: 'Домашний комфорт' },
               { icon: Utensils, title: 'Кухня', desc: 'Национальная кухня' },
             ].map((item, i) => (
-              <div key={i} className="text-center p-4 md:p-6">
-                <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">
-                  <item.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+              <div key={i} className="text-center p-4">
+                <div className="w-12 h-12 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">
+                  <item.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-1 text-sm md:text-base">{item.title}</h3>
-                <p className="text-xs md:text-sm text-muted-foreground">{item.desc}</p>
+                <h3 className="font-semibold mb-1 text-sm">{item.title}</h3>
+                <p className="text-xs text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -364,9 +367,9 @@ export default function GuestHouseLanding() {
       </section>
 
       {/* Rooms Section - Full Screen */}
-      <section id="rooms" ref={roomsRef} className="min-h-screen flex items-center py-20 bg-background snap-start snap-always">
+      <section id="rooms" className="min-h-screen flex items-center py-16 bg-background snap-start">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-12">
+          <div className="text-center mb-8">
             <Badge className="mb-4">Размещение</Badge>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Наши домики</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
@@ -423,9 +426,9 @@ export default function GuestHouseLanding() {
       </section>
 
       {/* Gallery Section - Full Screen */}
-      <section id="gallery" ref={galleryRef} className="min-h-screen flex items-center py-20 bg-muted/30 snap-start snap-always">
+      <section id="gallery" className="min-h-screen flex items-center py-16 bg-muted/30 snap-start">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-12">
+          <div className="text-center mb-8">
             <Badge className="mb-4">Галерея</Badge>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Окружающая природа</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
@@ -438,9 +441,9 @@ export default function GuestHouseLanding() {
               { src: '/images/gallery-forest.jpg', title: 'Лесные тропы' },
               { src: '/images/gallery-waterfall.jpg', title: 'Горный водопад' },
               { src: '/images/gallery-dining.jpg', title: 'Отдых на террасе' },
-              { src: '/images/room-cottage.jpg', title: 'Премиум коттедж' },
+              { src: '/images/room-cottage.jpg', title: 'Домик' },
               { src: '/images/hero-bg.jpg', title: 'Горный пейзаж' },
-              { src: '/images/room-family.jpg', title: 'Семейный номер' },
+              { src: '/images/room-family.jpg', title: 'Вид на горы' },
             ].map((item, i) => (
               <div key={i} className="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
                 <img src={item.src} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
@@ -455,100 +458,115 @@ export default function GuestHouseLanding() {
         </div>
       </section>
 
-      {/* Reviews Section - Full Screen */}
-      <section id="reviews" ref={reviewsRef} className="min-h-screen flex items-center py-20 bg-background snap-start snap-always">
+      {/* Contact & Reviews Section - Combined Full Screen */}
+      <section id="contact" className="min-h-screen flex items-center py-16 bg-primary text-white snap-start">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-12">
-            <Badge className="mb-4">Отзывы</Badge>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Что говорят гости</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
-              Нам важно ваше мнение
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {reviews.map((review) => (
-              <Card key={review.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-center gap-1 mb-2">
-                    {Array.from({length: 5}, (_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`} />
-                    ))}
-                  </div>
-                  <CardTitle className="text-lg">{review.guestName}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground italic text-sm">&ldquo;{review.comment}&rdquo;</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section - Full Screen */}
-      <section id="contact" ref={contactRef} className="min-h-screen flex items-center py-20 bg-primary text-white snap-start snap-always">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
+            
+            {/* Left - Contact Form */}
             <div>
               <Badge className="mb-4 bg-white/20 text-white border-white/30">Контакты</Badge>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">Свяжитесь с нами</h2>
-              <p className="text-white/80 mb-8 text-sm md:text-base">
-                Готовы ответить на все ваши вопросы
+              <p className="text-white/80 mb-6 text-sm md:text-base">
+                Готовы ответить на все ваши вопросы и помочь с выбором домика
               </p>
               
-              <div className="space-y-4">
-                <a href={`tel:${phone}`} className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                    <Phone className="w-5 h-5" />
+              <div className="space-y-3 mb-6">
+                <a href={`tel:${phone}`} className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                    <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Телефон</p>
-                    <p className="text-lg font-medium">{phone}</p>
+                    <p className="text-xs text-white/60">Телефон</p>
+                    <p className="font-medium">{phone}</p>
                   </div>
                 </a>
-                <a href="mailto:info@guesthouse-gabala.az" className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                    <Mail className="w-5 h-5" />
+                <a href="mailto:info@guesthouse-gabala.az" className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                    <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Email</p>
-                    <p className="text-lg font-medium">info@guesthouse-gabala.az</p>
+                    <p className="text-xs text-white/60">Email</p>
+                    <p className="font-medium">info@guesthouse-gabala.az</p>
                   </div>
                 </a>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                    <MapPin className="w-5 h-5" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                    <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Адрес</p>
-                    <p className="text-lg font-medium">Азербайджан, Габала</p>
-                    <p className="text-sm text-white/60">горно-лесная местность</p>
+                    <p className="text-xs text-white/60">Адрес</p>
+                    <p className="font-medium">Азербайджан, Габала</p>
                   </div>
                 </div>
               </div>
+              
+              <Card className="bg-white/10 border-white/20 backdrop-blur">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-white text-lg">Быстрая заявка</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-3" onSubmit={(e) => {
+                    e.preventDefault()
+                    alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
+                  }}>
+                    <Input placeholder="Ваше имя" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-10" />
+                    <Input placeholder="Телефон" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-10" />
+                    <Button type="submit" className="w-full bg-white text-primary hover:bg-white/90">
+                      Отправить
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </div>
             
-            <Card className="bg-white/10 border-white/20 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="text-white">Быстрая заявка</CardTitle>
-                <CardDescription className="text-white/60">Оставьте заявку и мы перезвоним</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4" onSubmit={(e) => {
-                  e.preventDefault()
-                  alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
-                }}>
-                  <Input placeholder="Ваше имя" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
-                  <Input placeholder="Телефон" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
-                  <Textarea placeholder="Сообщение" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" rows={3} />
-                  <Button type="submit" className="w-full bg-white text-primary hover:bg-white/90">
-                    <Send className="w-4 h-4 mr-2" />
-                    Отправить
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+            {/* Right - Floating Reviews */}
+            <div className="relative h-[400px] lg:h-[500px]">
+              <div className="absolute inset-0 flex items-center justify-center">
+                {reviews.map((review, index) => (
+                  <div
+                    key={review.id}
+                    className={`absolute w-full max-w-sm transition-all duration-700 ease-in-out ${
+                      index === currentReview 
+                        ? 'opacity-100 scale-100 translate-y-0' 
+                        : index < currentReview 
+                          ? 'opacity-0 scale-90 -translate-y-10'
+                          : 'opacity-0 scale-90 translate-y-10'
+                    }`}
+                  >
+                    <Card className="bg-white/15 border-white/30 backdrop-blur-sm shadow-2xl">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-1 mb-3">
+                          {Array.from({length: 5}, (_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-white/30'}`} />
+                          ))}
+                        </div>
+                        <p className="text-white/90 italic mb-4 text-sm md:text-base">&ldquo;{review.comment}&rdquo;</p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold">
+                            {review.guestName.charAt(0)}
+                          </div>
+                          <p className="font-medium text-white">{review.guestName}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Review indicators */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
+                {reviews.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentReview(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentReview ? 'bg-white w-6' : 'bg-white/30 hover:bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -665,11 +683,11 @@ export default function GuestHouseLanding() {
             <>
               <DialogHeader>
                 <DialogTitle>Управление домиками</DialogTitle>
-                <DialogDescription>Редактирование информации</DialogDescription>
+                <DialogDescription>Редактирование информации (только 2 домика)</DialogDescription>
               </DialogHeader>
               
               <div className="space-y-6 py-4">
-                {rooms.map((room) => (
+                {rooms.slice(0, 2).map((room) => (
                   <Card key={room.id} className="overflow-hidden">
                     {editingRoom?.id === room.id ? (
                       <CardContent className="p-4 space-y-4">
