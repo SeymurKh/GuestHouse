@@ -55,8 +55,18 @@ export default function GuestHouseLanding() {
   const [adminOpen, setAdminOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
-  const [editingRoom, setEditingRoom] = useState<Room | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
+  
+  // Edit form state - separate fields for easier editing
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPrice, setEditPrice] = useState(0)
+  const [editCapacity, setEditCapacity] = useState(2)
+  const [editDescription, setEditDescription] = useState('')
+  const [editConditions, setEditConditions] = useState('')
+  const [editAdvantagesText, setEditAdvantagesText] = useState('') // raw text, each line = one advantage
+  const [editAmenitiesText, setEditAmenitiesText] = useState('') // raw text, comma separated
+  const [editImages, setEditImages] = useState<string[]>([])
   
   // File input ref - use a key to force re-render
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -220,19 +230,41 @@ export default function GuestHouseLanding() {
     }
   }
 
+  // Start editing a room - initialize edit form
+  const startEditingRoom = (room: Room) => {
+    setEditId(room.id)
+    setEditName(room.name)
+    setEditPrice(room.price)
+    setEditCapacity(room.capacity)
+    setEditDescription(room.description)
+    setEditConditions(room.conditions || '')
+    setEditAdvantagesText(parseAdvantages(room.advantages).join('\n'))
+    setEditAmenitiesText(parseAmenities(room.amenities).join(', '))
+    setEditImages(parseImages(room.images))
+  }
+  
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditId(null)
+    setEditName('')
+    setEditPrice(0)
+    setEditCapacity(2)
+    setEditDescription('')
+    setEditConditions('')
+    setEditAdvantagesText('')
+    setEditAmenitiesText('')
+    setEditImages([])
+  }
+  
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
-    if (!files || files.length === 0 || !editingRoom) return
+    if (!files || files.length === 0 || !editId) return
     
     const file = files[0]
     const url = await uploadFile(file)
     if (url) {
-      const currentImages = parseImages(editingRoom.images)
-      setEditingRoom({
-        ...editingRoom,
-        images: JSON.stringify([...currentImages, url])
-      })
+      setEditImages(prev => [...prev, url])
     }
     
     // Reset input by changing key
@@ -241,53 +273,66 @@ export default function GuestHouseLanding() {
   
   // Trigger file input click
   const triggerFileInput = () => {
-    // Use setTimeout to ensure the click happens after any pending state updates
     setTimeout(() => {
       fileInputRef.current?.click()
     }, 0)
   }
 
-  // Add image to editing room (from URL - optional)
-  const addImageToRoom = (imageUrl: string) => {
-    if (!editingRoom || !imageUrl.trim()) return
-    const currentImages = parseImages(editingRoom.images)
-    setEditingRoom({
-      ...editingRoom,
-      images: JSON.stringify([...currentImages, imageUrl.trim()])
-    })
-  }
-
-  // Remove image from editing room and delete from server
-  const removeImageFromRoom = async (index: number) => {
-    if (!editingRoom) return
-    const currentImages = parseImages(editingRoom.images)
-    const imageToDelete = currentImages[index]
+  // Remove image from edit form
+  const removeImageFromEdit = async (index: number) => {
+    const imageToDelete = editImages[index]
     
-    // Delete file from server
+    // Delete file from server if it's an uploaded file
     await deleteFile(imageToDelete)
     
-    // Remove from room data
-    setEditingRoom({
-      ...editingRoom,
-      images: JSON.stringify(currentImages.filter((_: string, i: number) => i !== index))
-    })
+    // Remove from edit images
+    setEditImages(prev => prev.filter((_, i) => i !== index))
   }
 
   // Save room changes
-  const saveRoomChanges = async (room: Room) => {
+  const saveRoomChanges = async () => {
+    if (!editId) return
+    
+    // Parse advantages and amenities from text
+    const advantages = editAdvantagesText
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+    
+    const amenities = editAmenitiesText
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+    
+    const roomData = {
+      id: editId,
+      name: editName,
+      price: editPrice,
+      capacity: editCapacity,
+      description: editDescription,
+      conditions: editConditions,
+      advantages: JSON.stringify(advantages),
+      amenities: JSON.stringify(amenities),
+      images: JSON.stringify(editImages)
+    }
+    
     try {
       const res = await fetch('/api/rooms', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(room)
+        body: JSON.stringify(roomData)
       })
       if (res.ok) {
         const updated = await res.json()
-        setRooms(rooms.map(r => r.id === room.id ? updated : r))
-        setEditingRoom(null)
+        setRooms(rooms.map(r => r.id === editId ? updated : r))
+        cancelEditing()
         alert('Сохранено успешно!')
+      } else {
+        const error = await res.json()
+        alert('Ошибка: ' + (error.error || 'Не удалось сохранить'))
       }
-    } catch {
+    } catch (err) {
+      console.error('Save error:', err)
       alert('Ошибка при сохранении')
     }
   }
@@ -709,7 +754,51 @@ export default function GuestHouseLanding() {
                 </DialogDescription>
               </DialogHeader>
               
-              {/* 1. Изображения */}
+              {/* 1. Описание */}
+              <div>
+                <h4 className="font-semibold mb-2">Описание</h4>
+                <p className="text-muted-foreground text-sm">{selectedRoom.description}</p>
+              </div>
+              
+              {/* 2. Условия проживания */}
+              {selectedRoom.conditions && (
+                <div>
+                  <h4 className="font-semibold mb-2">Условия проживания</h4>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{selectedRoom.conditions}</pre>
+                  </div>
+                </div>
+              )}
+              
+              {/* 3. Преимущества */}
+              {parseAdvantages(selectedRoom.advantages).length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3">Преимущества</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {parseAdvantages(selectedRoom.advantages).map((adv: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span>{adv}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* 4. Удобства */}
+              <div>
+                <h4 className="font-semibold mb-3">Удобства</h4>
+                <div className="flex flex-wrap gap-2">
+                  {parseAmenities(selectedRoom.amenities).map((amenity: string, i: number) => (
+                    <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                      {getAmenityIcon(amenity)}
+                      {amenity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {/* 5. Изображения */}
               <div>
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
                   Изображения
@@ -727,50 +816,6 @@ export default function GuestHouseLanding() {
                     ))}
                   </div>
                 )}
-              </div>
-              
-              {/* 2. Описание */}
-              <div>
-                <h4 className="font-semibold mb-2">Описание</h4>
-                <p className="text-muted-foreground text-sm">{selectedRoom.description}</p>
-              </div>
-              
-              {/* 3. Условия проживания */}
-              {selectedRoom.conditions && (
-                <div>
-                  <h4 className="font-semibold mb-2">Условия проживания</h4>
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{selectedRoom.conditions}</pre>
-                  </div>
-                </div>
-              )}
-              
-              {/* 4. Преимущества */}
-              {parseAdvantages(selectedRoom.advantages).length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-3">Преимущества</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {parseAdvantages(selectedRoom.advantages).map((adv: string, i: number) => (
-                      <div key={i} className="flex items-center gap-2 text-sm">
-                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span>{adv}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* 5. Удобства */}
-              <div>
-                <h4 className="font-semibold mb-3">Удобства</h4>
-                <div className="flex flex-wrap gap-2">
-                  {parseAmenities(selectedRoom.amenities).map((amenity: string, i: number) => (
-                    <Badge key={i} variant="secondary" className="flex items-center gap-1">
-                      {getAmenityIcon(amenity)}
-                      {amenity}
-                    </Badge>
-                  ))}
-                </div>
               </div>
               
               <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
@@ -809,16 +854,16 @@ export default function GuestHouseLanding() {
               <div className="space-y-6 py-4">
                 {rooms.slice(0, 2).map((room) => (
                   <Card key={room.id} className="overflow-hidden">
-                    {editingRoom?.id === room.id ? (
+                    {editId === room.id ? (
                       <CardContent className="p-4 space-y-4">
-                        {/* 1. Основная информация */}
+                        {/* 1. Название и Цена */}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label htmlFor="edit-name">Название</Label>
                             <Input 
                               id="edit-name"
-                              value={editingRoom.name} 
-                              onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})} 
+                              value={editName} 
+                              onChange={(e) => setEditName(e.target.value)} 
                             />
                           </div>
                           <div>
@@ -826,83 +871,84 @@ export default function GuestHouseLanding() {
                             <Input 
                               id="edit-price"
                               type="number" 
-                              value={editingRoom.price} 
-                              onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value) || 0})} 
+                              value={editPrice} 
+                              onChange={(e) => setEditPrice(parseFloat(e.target.value) || 0)} 
                             />
                           </div>
                         </div>
                         
+                        {/* 2. Вместимость */}
                         <div>
                           <Label htmlFor="edit-capacity">Вместимость (гостей)</Label>
                           <Input 
                             id="edit-capacity"
                             type="number" 
-                            value={editingRoom.capacity} 
-                            onChange={(e) => setEditingRoom({...editingRoom, capacity: parseInt(e.target.value) || 1})} 
+                            value={editCapacity} 
+                            onChange={(e) => setEditCapacity(parseInt(e.target.value) || 1)} 
                           />
                         </div>
                         
-                        {/* 2. Описание */}
+                        {/* 3. Описание */}
                         <div>
                           <Label htmlFor="edit-description">Описание</Label>
                           <Textarea 
                             id="edit-description"
-                            value={editingRoom.description} 
-                            onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})} 
+                            value={editDescription} 
+                            onChange={(e) => setEditDescription(e.target.value)} 
                             rows={3} 
                           />
                         </div>
                         
-                        {/* 3. Условия проживания */}
+                        {/* 4. Условия проживания */}
                         <div>
                           <Label htmlFor="edit-conditions">Условия проживания</Label>
                           <Textarea 
                             id="edit-conditions"
-                            value={editingRoom.conditions || ''} 
-                            onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})} 
+                            value={editConditions} 
+                            onChange={(e) => setEditConditions(e.target.value)} 
                             rows={4} 
                             placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• Курение запрещено" 
                           />
                         </div>
                         
-                        {/* 4. Преимущества */}
+                        {/* 5. Преимущества */}
                         <div>
                           <Label htmlFor="edit-advantages">Преимущества (каждое с новой строки)</Label>
                           <Textarea 
                             id="edit-advantages"
-                            value={parseAdvantages(editingRoom.advantages).join('\n')} 
-                            onChange={(e) => setEditingRoom({...editingRoom, advantages: JSON.stringify(e.target.value.split('\n').map(s => s.trim()).filter(Boolean))})} 
+                            value={editAdvantagesText} 
+                            onChange={(e) => setEditAdvantagesText(e.target.value)} 
                             rows={4}
                             placeholder="Красивый вид&#10;Тихое место&#10;Камин"
                           />
                         </div>
                         
-                        {/* 5. Удобства */}
+                        {/* 6. Удобства */}
                         <div>
                           <Label htmlFor="edit-amenities">Удобства (через запятую)</Label>
                           <Input 
                             id="edit-amenities"
-                            value={parseAmenities(editingRoom.amenities).join(', ')} 
-                            onChange={(e) => setEditingRoom({...editingRoom, amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))})} 
+                            value={editAmenitiesText} 
+                            onChange={(e) => setEditAmenitiesText(e.target.value)} 
                             placeholder="Wi-Fi, Камин, ТВ, Кухня"
                           />
                         </div>
                         
-                        {/* 6. Изображения */}
+                        {/* 7. Изображения */}
                         <div>
                           <Label className="flex items-center gap-2 mb-2">
                             Изображения
-                            <Badge variant="secondary">{parseImages(editingRoom.images).length}</Badge>
+                            <Badge variant="secondary">{editImages.length}</Badge>
                           </Label>
                           
                           {/* Image Previews */}
                           <div className="grid grid-cols-3 gap-2 mb-3">
-                            {parseImages(editingRoom.images).map((img: string, i: number) => (
+                            {editImages.map((img: string, i: number) => (
                               <div key={i} className="relative group aspect-video rounded overflow-hidden border bg-muted">
                                 <img src={img} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
                                 <button
                                   type="button"
-                                  onClick={() => removeImageFromRoom(i)}
+                                  onClick={() => removeImageFromEdit(i)}
                                   className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                                   title="Удалить изображение"
                                 >
@@ -910,7 +956,7 @@ export default function GuestHouseLanding() {
                                 </button>
                               </div>
                             ))}
-                            {parseImages(editingRoom.images).length === 0 && (
+                            {editImages.length === 0 && (
                               <div className="col-span-3 text-center py-4 text-muted-foreground text-sm">
                                 Нет изображений. Загрузите фото.
                               </div>
@@ -944,8 +990,8 @@ export default function GuestHouseLanding() {
                         </div>
                         
                         <div className="flex gap-2 pt-2">
-                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary flex-1">Сохранить изменения</Button>
-                          <Button variant="outline" onClick={() => setEditingRoom(null)}>Отмена</Button>
+                          <Button onClick={saveRoomChanges} className="bg-primary flex-1">Сохранить изменения</Button>
+                          <Button variant="outline" onClick={cancelEditing}>Отмена</Button>
                         </div>
                       </CardContent>
                     ) : (
@@ -963,7 +1009,7 @@ export default function GuestHouseLanding() {
                               <p className="text-xs text-muted-foreground">{parseImages(room.images).length} фото</p>
                             </div>
                           </div>
-                          <Button onClick={() => setEditingRoom(room)}>Редактировать</Button>
+                          <Button onClick={() => startEditingRoom(room)}>Редактировать</Button>
                         </div>
                       </CardContent>
                     )}
@@ -972,7 +1018,7 @@ export default function GuestHouseLanding() {
               </div>
               
               <div className="flex justify-end">
-                <Button variant="outline" onClick={() => { setIsAdmin(false); setAdminPassword(''); setEditingRoom(null); }}>
+                <Button variant="outline" onClick={() => { setIsAdmin(false); setAdminPassword(''); cancelEditing(); }}>
                   Выйти
                 </Button>
               </div>
