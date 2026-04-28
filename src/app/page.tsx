@@ -4,22 +4,15 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
 import { 
-  Mountain, Trees, Phone, Mail, MapPin, Star, Users, Bed, 
-  Calendar as CalendarIcon, ChevronRight, Menu, X, Wifi, 
+  Mountain, Trees, Phone, Mail, MapPin, Star, Users, 
+  ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
   Flame, Car, Utensils, Heart, MessageCircle, Send,
-  Settings, LogIn, Eye, Check, XCircle, Clock
+  Settings
 } from 'lucide-react'
 
 // Types
@@ -34,20 +27,6 @@ interface Room {
   isAvailable: boolean
 }
 
-interface Booking {
-  id: string
-  roomId: string
-  guestName: string
-  guestPhone: string
-  guestEmail: string | null
-  checkIn: string
-  checkOut: string
-  guests: number
-  status: string
-  notes: string | null
-  room: Room
-}
-
 interface Review {
   id: string
   guestName: string
@@ -60,28 +39,17 @@ export default function GuestHouseLanding() {
   // State
   const [rooms, setRooms] = useState<Room[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
-  const [bookings, setBookings] = useState<Booking[]>([])
   const [phone, setPhone] = useState('+994 50 123 45 67')
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  
-  // Booking modal state
-  const [bookingModalOpen, setBookingModalOpen] = useState(false)
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
-  const [checkIn, setCheckIn] = useState<Date>()
-  const [checkOut, setCheckOut] = useState<Date>()
-  const [bookingForm, setBookingForm] = useState({
-    guestName: '',
-    guestPhone: '',
-    guestEmail: '',
-    guests: 1,
-    notes: ''
-  })
   
   // Admin state
   const [adminOpen, setAdminOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  
+  // Slider state
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   // Initialize data
   useEffect(() => {
@@ -114,59 +82,19 @@ export default function GuestHouseLanding() {
     initData()
   }, [])
 
-  // Fetch bookings for admin
-  const fetchBookings = async () => {
-    const res = await fetch('/api/bookings')
-    const data = await res.json()
-    setBookings(data)
-  }
-
-  // Handle booking submit
-  const handleBookingSubmit = async () => {
-    if (!selectedRoom || !checkIn || !checkOut) return
-    
-    try {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId: selectedRoom.id,
-          ...bookingForm,
-          checkIn: checkIn.toISOString(),
-          checkOut: checkOut.toISOString()
-        })
-      })
-      
-      if (res.ok) {
-        alert('Бронирование успешно создано! Мы свяжемся с вами для подтверждения.')
-        setBookingModalOpen(false)
-        setBookingForm({ guestName: '', guestPhone: '', guestEmail: '', guests: 1, notes: '' })
-        setCheckIn(undefined)
-        setCheckOut(undefined)
-      } else {
-        const error = await res.json()
-        alert(error.error || 'Ошибка при бронировании')
-      }
-    } catch (error) {
-      alert('Ошибка при бронировании')
-    }
-  }
-
-  // Update booking status
-  const updateBookingStatus = async (id: string, status: string) => {
-    await fetch('/api/bookings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status })
-    })
-    fetchBookings()
-  }
+  // Auto-slide effect
+  useEffect(() => {
+    if (rooms.length === 0) return
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % rooms.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [rooms.length])
 
   // Admin login
   const handleAdminLogin = () => {
     if (adminPassword === 'admin123') {
       setIsAdmin(true)
-      fetchBookings()
     } else {
       alert('Неверный пароль')
     }
@@ -273,47 +201,98 @@ export default function GuestHouseLanding() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/images/hero-bg.jpg)' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-        </div>
-        
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <Badge className="mb-6 bg-primary/20 border-primary/30 text-white backdrop-blur-sm">
-            <Trees className="w-3 h-3 mr-1" />
-            Азербайджан, Габала
-          </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Отдых в горах<br />
-            <span className="text-primary">среди природы</span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Уютный гостевой дом в горно-лесной местности Габалы. 
-            Величественные горы, густые леса и незабываемые впечатления.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white px-8">
-              <a href="#rooms">
-                Выбрать номер
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-              <a href={`tel:${phone}`}>
-                <Phone className="w-4 h-4 mr-2" />
-                Связаться
-              </a>
-            </Button>
-          </div>
-        </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-white/50 rounded-full" />
+      <section className="min-h-screen flex items-center pt-16 bg-gradient-to-br from-background via-muted/30 to-background">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+            {/* Left Side - Welcome Text */}
+            <div className="space-y-8">
+              <Badge className="bg-primary/10 text-primary border-primary/20">
+                <Trees className="w-3 h-3 mr-1" />
+                Азербайджан, Габала
+              </Badge>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                Добро пожаловать в<br />
+                <span className="text-primary">уголок спокойствия</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
+                Оставьте суету позади и окунитесь в атмосферу тепла и уюта. 
+                Наш гостевой дом — место, где природа обнимает вас, а время замедляет свой бег.
+              </p>
+              <p className="text-muted-foreground max-w-lg">
+                Проснитесь под пение птиц, вдохните свежий горный воздух и проведите незабываемые дни 
+                в окружении величественных гор и густых лесов Габалы.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8">
+                  <a href="#rooms">
+                    Посмотреть номера
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </a>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-primary/20">
+                  <a href={`tel:${phone}`}>
+                    <Phone className="w-4 h-4 mr-2" />
+                    Связаться с нами
+                  </a>
+                </Button>
+              </div>
+            </div>
+            
+            {/* Right Side - Sliding Images */}
+            <div className="relative h-[400px] md:h-[500px] lg:h-[600px]">
+              <div className="absolute inset-0 flex items-center justify-center">
+                {rooms.map((room, index) => (
+                  <div 
+                    key={room.id}
+                    className={`absolute w-full max-w-md transition-all duration-1000 ease-in-out ${
+                      index === currentSlide 
+                        ? 'opacity-100 translate-x-0 scale-100' 
+                        : index < currentSlide 
+                          ? 'opacity-0 -translate-x-full scale-95'
+                          : 'opacity-0 translate-x-full scale-95'
+                    }`}
+                  >
+                    <Card className="overflow-hidden shadow-2xl">
+                      <div className="relative h-64 md:h-72">
+                        <img 
+                          src={JSON.parse(room.images)[0] || '/images/hero-bg.jpg'} 
+                          alt={room.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <h3 className="text-white text-xl font-semibold mb-1">{room.name}</h3>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-primary text-white">
+                              {room.price} AZN / ночь
+                            </Badge>
+                            <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                              <Users className="w-3 h-3 mr-1" />
+                              {room.capacity} гостей
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Slide Indicators */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
+                {rooms.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentSlide 
+                        ? 'bg-primary w-8' 
+                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -388,133 +367,12 @@ export default function GuestHouseLanding() {
                       <Badge variant="outline" className="text-xs px-2 py-0.5">+{parseAmenities(room.amenities).length - 3}</Badge>
                     )}
                   </div>
-                  <Dialog open={bookingModalOpen && selectedRoom?.id === room.id} onOpenChange={(open) => {
-                    setBookingModalOpen(open)
-                    if (open) setSelectedRoom(room)
-                  }}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="w-full bg-primary hover:bg-primary/90 mt-auto" onClick={() => setSelectedRoom(room)}>
-                        <CalendarIcon className="w-4 h-4 mr-2" />
-                        Забронировать
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px]">
-                      <DialogHeader>
-                        <DialogTitle>Бронирование: {selectedRoom?.name}</DialogTitle>
-                        <DialogDescription>
-                          Заполните форму для бронирования номера
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Заезд</Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {checkIn ? format(checkIn, 'dd MMM', { locale: ru }) : 'Выберите'}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                  mode="single"
-                                  selected={checkIn}
-                                  onSelect={setCheckIn}
-                                  disabled={(date) => date < new Date()}
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Выезд</Label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {checkOut ? format(checkOut, 'dd MMM', { locale: ru }) : 'Выберите'}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                  mode="single"
-                                  selected={checkOut}
-                                  onSelect={setCheckOut}
-                                  disabled={(date) => date < (checkIn || new Date())}
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="name">Имя и фамилия</Label>
-                          <Input 
-                            id="name" 
-                            value={bookingForm.guestName}
-                            onChange={(e) => setBookingForm({...bookingForm, guestName: e.target.value})}
-                            placeholder="Али Мамедов"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="phone">Телефон *</Label>
-                          <Input 
-                            id="phone" 
-                            value={bookingForm.guestPhone}
-                            onChange={(e) => setBookingForm({...bookingForm, guestPhone: e.target.value})}
-                            placeholder="+994 50 XXX XX XX"
-                            required
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input 
-                            id="email" 
-                            type="email"
-                            value={bookingForm.guestEmail}
-                            onChange={(e) => setBookingForm({...bookingForm, guestEmail: e.target.value})}
-                            placeholder="email@example.com"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="guests">Количество гостей</Label>
-                          <Select value={bookingForm.guests.toString()} onValueChange={(v) => setBookingForm({...bookingForm, guests: parseInt(v)})}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Array.from({length: selectedRoom?.capacity || 4}, (_, i) => i + 1).map(n => (
-                                <SelectItem key={n} value={n.toString()}>{n} {n === 1 ? 'гость' : n < 5 ? 'гостя' : 'гостей'}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="notes">Пожелания</Label>
-                          <Textarea 
-                            id="notes"
-                            value={bookingForm.notes}
-                            onChange={(e) => setBookingForm({...bookingForm, notes: e.target.value})}
-                            placeholder="Особые пожелания..."
-                            rows={3}
-                          />
-                        </div>
-                        {checkIn && checkOut && (
-                          <div className="bg-muted p-3 rounded-lg">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>{Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))} ночей × {selectedRoom?.price} AZN</span>
-                            </div>
-                            <div className="flex justify-between font-bold">
-                              <span>Итого:</span>
-                              <span>{Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)) * (selectedRoom?.price || 0)} AZN</span>
-                            </div>
-                          </div>
-                        )}
-                        <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleBookingSubmit}>
-                          Отправить заявку
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <Button asChild size="sm" className="w-full bg-primary hover:bg-primary/90 mt-auto">
+                    <a href={`tel:${phone}`}>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Узнать подробнее
+                    </a>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -695,7 +553,7 @@ export default function GuestHouseLanding() {
 
       {/* Admin Dialog */}
       <Dialog open={adminOpen} onOpenChange={setAdminOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[500px]">
           {!isAdmin ? (
             <>
               <DialogHeader>
@@ -717,169 +575,57 @@ export default function GuestHouseLanding() {
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Панель управления</DialogTitle>
-                <DialogDescription>Управление бронированиями и номерами</DialogDescription>
+                <DialogTitle>Управление номерами</DialogTitle>
+                <DialogDescription>Изменение цен на номера</DialogDescription>
               </DialogHeader>
-              <Tabs defaultValue="bookings">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="bookings">Бронирования</TabsTrigger>
-                  <TabsTrigger value="pending">Ожидающие</TabsTrigger>
-                  <TabsTrigger value="confirmed">Подтверждённые</TabsTrigger>
-                  <TabsTrigger value="rooms">Номера</TabsTrigger>
-                </TabsList>
-                <TabsContent value="bookings" className="mt-4">
-                  <div className="space-y-4">
-                    {bookings.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">Нет бронирований</p>
-                    ) : (
-                      bookings.map((booking) => (
-                        <Card key={booking.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1">
-                                <p className="font-medium">{booking.guestName}</p>
-                                <p className="text-sm text-muted-foreground">{booking.guestPhone}</p>
-                                <p className="text-sm">
-                                  {format(new Date(booking.checkIn), 'dd MMM', { locale: ru })} - {format(new Date(booking.checkOut), 'dd MMM', { locale: ru })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Номер: {booking.room?.name}</p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge className={
-                                  booking.status === 'confirmed' ? 'bg-green-500' :
-                                  booking.status === 'cancelled' ? 'bg-red-500' :
-                                  'bg-yellow-500'
-                                }>
-                                  {booking.status === 'confirmed' ? 'Подтверждено' :
-                                   booking.status === 'cancelled' ? 'Отменено' : 'Ожидание'}
-                                </Badge>
-                                {booking.status === 'pending' && (
-                                  <div className="flex gap-1">
-                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateBookingStatus(booking.id, 'confirmed')}>
-                                      <Check className="w-4 h-4 text-green-500" />
-                                    </Button>
-                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateBookingStatus(booking.id, 'cancelled')}>
-                                      <XCircle className="w-4 h-4 text-red-500" />
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                </TabsContent>
-                <TabsContent value="pending" className="mt-4">
-                  <div className="space-y-4">
-                    {bookings.filter(b => b.status === 'pending').length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">Нет ожидающих бронирований</p>
-                    ) : (
-                      bookings.filter(b => b.status === 'pending').map((booking) => (
-                        <Card key={booking.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1">
-                                <p className="font-medium">{booking.guestName}</p>
-                                <p className="text-sm text-muted-foreground">{booking.guestPhone}</p>
-                                <p className="text-sm">
-                                  {format(new Date(booking.checkIn), 'dd MMM', { locale: ru })} - {format(new Date(booking.checkOut), 'dd MMM', { locale: ru })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Номер: {booking.room?.name}</p>
-                              </div>
-                              <div className="flex gap-1">
-                                <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={() => updateBookingStatus(booking.id, 'confirmed')}>
-                                  <Check className="w-4 h-4 mr-1" /> Подтвердить
-                                </Button>
-                                <Button size="sm" variant="destructive" onClick={() => updateBookingStatus(booking.id, 'cancelled')}>
-                                  <XCircle className="w-4 h-4 mr-1" /> Отклонить
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                </TabsContent>
-                <TabsContent value="confirmed" className="mt-4">
-                  <div className="space-y-4">
-                    {bookings.filter(b => b.status === 'confirmed').length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">Нет подтверждённых бронирований</p>
-                    ) : (
-                      bookings.filter(b => b.status === 'confirmed').map((booking) => (
-                        <Card key={booking.id}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="space-y-1">
-                                <p className="font-medium">{booking.guestName}</p>
-                                <p className="text-sm text-muted-foreground">{booking.guestPhone}</p>
-                                <p className="text-sm">
-                                  {format(new Date(booking.checkIn), 'dd MMM', { locale: ru })} - {format(new Date(booking.checkOut), 'dd MMM', { locale: ru })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Номер: {booking.room?.name}</p>
-                              </div>
-                              <Badge className="bg-green-500">Подтверждено</Badge>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </div>
-                </TabsContent>
-                <TabsContent value="rooms" className="mt-4">
-                  <div className="space-y-4">
-                    {rooms.map((room) => (
-                      <Card key={room.id}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <p className="font-medium">{room.name}</p>
-                              <p className="text-sm text-muted-foreground">до {room.capacity} гостей</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Цена:</span>
-                              <Input 
-                                type="number" 
-                                className="w-24" 
-                                defaultValue={room.price}
-                                id={`price-${room.id}`}
-                              />
-                              <span className="text-sm">AZN</span>
-                              <Button 
-                                size="sm" 
-                                onClick={async () => {
-                                  const input = document.getElementById(`price-${room.id}`) as HTMLInputElement
-                                  const newPrice = input?.value
-                                  if (newPrice) {
-                                    try {
-                                      const res = await fetch('/api/rooms', {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ id: room.id, price: newPrice })
-                                      })
-                                      if (res.ok) {
-                                        // Обновляем локальное состояние
-                                        setRooms(rooms.map(r => r.id === room.id ? {...r, price: parseFloat(newPrice)} : r))
-                                        alert('Цена обновлена!')
-                                      }
-                                    } catch {
-                                      alert('Ошибка при обновлении')
-                                    }
+              <div className="space-y-4 py-4">
+                {rooms.map((room) => (
+                  <Card key={room.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-medium">{room.name}</p>
+                          <p className="text-sm text-muted-foreground">до {room.capacity} гостей</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Цена:</span>
+                          <Input 
+                            type="number" 
+                            className="w-24" 
+                            defaultValue={room.price}
+                            id={`price-${room.id}`}
+                          />
+                          <span className="text-sm">AZN</span>
+                          <Button 
+                            size="sm" 
+                            onClick={async () => {
+                              const input = document.getElementById(`price-${room.id}`) as HTMLInputElement
+                              const newPrice = input?.value
+                              if (newPrice) {
+                                try {
+                                  const res = await fetch('/api/rooms', {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ id: room.id, price: newPrice })
+                                  })
+                                  if (res.ok) {
+                                    setRooms(rooms.map(r => r.id === room.id ? {...r, price: parseFloat(newPrice)} : r))
+                                    alert('Цена обновлена!')
                                   }
-                                }}
-                              >
-                                Сохранить
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
+                                } catch {
+                                  alert('Ошибка при обновлении')
+                                }
+                              }
+                            }}
+                          >
+                            Сохранить
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </>
           )}
         </DialogContent>
