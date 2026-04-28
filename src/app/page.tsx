@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,7 @@ import {
   ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
   Flame, Car, Utensils, Heart, MessageCircle, Send,
-  Settings, Check, ArrowRight
+  Settings, Check, ArrowRight, Plus, Trash2, ChevronDown
 } from 'lucide-react'
 
 // Types
@@ -59,29 +59,29 @@ export default function GuestHouseLanding() {
   
   // Slider state for hero
   const [currentSlide, setCurrentSlide] = useState(0)
+  
+  // Refs for scroll
+  const heroRef = useRef<HTMLElement>(null)
+  const featuresRef = useRef<HTMLElement>(null)
+  const roomsRef = useRef<HTMLElement>(null)
+  const galleryRef = useRef<HTMLElement>(null)
+  const reviewsRef = useRef<HTMLElement>(null)
+  const contactRef = useRef<HTMLElement>(null)
 
   // Initialize data
   useEffect(() => {
     async function initData() {
       try {
-        // Initialize sample data
         await fetch('/api/init', { method: 'POST' })
-        
-        // Fetch rooms
         const roomsRes = await fetch('/api/rooms')
         const roomsData = await roomsRes.json()
         setRooms(roomsData)
-        
-        // Fetch reviews
         const reviewsRes = await fetch('/api/reviews')
         const reviewsData = await reviewsRes.json()
         setReviews(reviewsData)
-        
-        // Fetch settings
         const settingsRes = await fetch('/api/settings')
         const settingsData = await settingsRes.json()
         if (settingsData?.phone) setPhone(settingsData.phone)
-        
         setLoading(false)
       } catch (error) {
         console.error('Error initializing:', error)
@@ -116,31 +116,17 @@ export default function GuestHouseLanding() {
     setRoomModalOpen(true)
   }
 
-  // Parse amenities
+  // Parse helpers
   const parseAmenities = (amenitiesStr: string) => {
-    try {
-      return JSON.parse(amenitiesStr)
-    } catch {
-      return []
-    }
+    try { return JSON.parse(amenitiesStr) } catch { return [] }
   }
 
-  // Parse advantages
   const parseAdvantages = (advantagesStr: string) => {
-    try {
-      return JSON.parse(advantagesStr)
-    } catch {
-      return []
-    }
+    try { return JSON.parse(advantagesStr) } catch { return [] }
   }
 
-  // Parse images
   const parseImages = (imagesStr: string) => {
-    try {
-      return JSON.parse(imagesStr)
-    } catch {
-      return []
-    }
+    try { return JSON.parse(imagesStr) } catch { return [] }
   }
 
   // Amenity icons
@@ -158,6 +144,26 @@ export default function GuestHouseLanding() {
       'Сейф': <Shield className="w-4 h-4" />,
     }
     return icons[amenity] || <Sparkles className="w-4 h-4" />
+  }
+
+  // Add image to editing room
+  const addImageToRoom = (imageUrl: string) => {
+    if (!editingRoom || !imageUrl.trim()) return
+    const currentImages = parseImages(editingRoom.images)
+    setEditingRoom({
+      ...editingRoom,
+      images: JSON.stringify([...currentImages, imageUrl.trim()])
+    })
+  }
+
+  // Remove image from editing room
+  const removeImageFromRoom = (index: number) => {
+    if (!editingRoom) return
+    const currentImages = parseImages(editingRoom.images)
+    setEditingRoom({
+      ...editingRoom,
+      images: JSON.stringify(currentImages.filter((_: string, i: number) => i !== index))
+    })
   }
 
   // Save room changes
@@ -200,7 +206,6 @@ export default function GuestHouseLanding() {
             <span className="font-bold text-xl">Guest House Gabala</span>
           </a>
           
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
             <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors">Домики</a>
             <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors">Галерея</a>
@@ -215,26 +220,15 @@ export default function GuestHouseLanding() {
                 Позвонить
               </a>
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setAdminOpen(true)}
-              className="hidden sm:flex"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setAdminOpen(true)} className="hidden sm:flex">
               <Settings className="w-5 h-5" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
         
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-background border-b p-4">
             <nav className="flex flex-col gap-4">
@@ -253,29 +247,25 @@ export default function GuestHouseLanding() {
         )}
       </header>
 
-      {/* Hero Section */}
-      <section className="min-h-screen flex items-center pt-16 bg-gradient-to-br from-background via-muted/30 to-background">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+      {/* Hero Section - Full Screen */}
+      <section ref={heroRef} className="min-h-screen flex items-center pt-20 pb-16 bg-gradient-to-br from-background via-muted/30 to-background snap-start snap-always">
+        <div className="container mx-auto px-4 h-full">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-9rem)]">
             {/* Left Side - Welcome Text */}
-            <div className="space-y-8">
+            <div className="space-y-6 lg:space-y-8">
               <Badge className="bg-primary/10 text-primary border-primary/20">
                 <Trees className="w-3 h-3 mr-1" />
                 Азербайджан, Габала
               </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Добро пожаловать в<br />
                 <span className="text-primary">уголок спокойствия</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-lg">
                 Оставьте суету позади и окунитесь в атмосферу тепла и уюта. 
-                Наш гостевой дом — место, где природа обнимает вас, а время замедляет свой бег.
+                Наш гостевой дом — место, где природа обнимает вас.
               </p>
-              <p className="text-muted-foreground max-w-lg">
-                Проснитесь под пение птиц, вдохните свежий горный воздух и проведите незабываемые дни 
-                в окружении величественных гор и густых лесов Габалы.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8">
                   <a href="#rooms">
                     Наши домики
@@ -285,14 +275,14 @@ export default function GuestHouseLanding() {
                 <Button asChild size="lg" variant="outline" className="border-primary/20">
                   <a href={`tel:${phone}`}>
                     <Phone className="w-4 h-4 mr-2" />
-                    Связаться с нами
+                    Связаться
                   </a>
                 </Button>
               </div>
             </div>
             
             {/* Right Side - Sliding Images */}
-            <div className="relative h-[400px] md:h-[500px] lg:h-[600px]">
+            <div className="relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
               <div className="absolute inset-0 flex items-center justify-center">
                 {rooms.map((room, index) => (
                   <div 
@@ -306,7 +296,7 @@ export default function GuestHouseLanding() {
                     }`}
                   >
                     <Card className="overflow-hidden shadow-2xl cursor-pointer hover:shadow-3xl transition-shadow" onClick={() => openRoomModal(room)}>
-                      <div className="relative h-64 md:h-72">
+                      <div className="relative h-56 sm:h-64">
                         <img 
                           src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                           alt={room.name}
@@ -314,14 +304,12 @@ export default function GuestHouseLanding() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-4 right-4">
-                          <h3 className="text-white text-xl font-semibold mb-1">{room.name}</h3>
+                          <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{room.name}</h3>
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-primary text-white">
-                              {room.price} AZN / ночь
-                            </Badge>
+                            <Badge className="bg-primary text-white">{room.price} AZN / ночь</Badge>
                             <Badge variant="secondary" className="bg-white/20 text-white border-0">
                               <Users className="w-3 h-3 mr-1" />
-                              {room.capacity} гостей
+                              {room.capacity}
                             </Badge>
                           </div>
                         </div>
@@ -338,59 +326,62 @@ export default function GuestHouseLanding() {
                     key={index}
                     onClick={() => setCurrentSlide(index)}
                     className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentSlide 
-                        ? 'bg-primary w-8' 
-                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                      index === currentSlide ? 'bg-primary w-8' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
                     }`}
                   />
                 ))}
               </div>
             </div>
           </div>
+          
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
+            <ChevronDown className="w-6 h-6 text-muted-foreground" />
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-muted/30">
+      {/* Features Section - Compact */}
+      <section ref={featuresRef} className="py-12 bg-muted/30 snap-start snap-always">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { icon: Mountain, title: 'Горные виды', desc: 'Панорамные виды на Кавказские горы' },
-              { icon: Trees, title: 'Лесная тишина', desc: 'Отдых в окружении густых лесов' },
-              { icon: Heart, title: 'Уют', desc: 'Домашняя атмосфера и комфорт' },
-              { icon: Utensils, title: 'Кухня', desc: 'Национальная азербайджанская кухня' },
+              { icon: Mountain, title: 'Горные виды', desc: 'Кавказские горы' },
+              { icon: Trees, title: 'Лесная тишина', desc: 'Густые леса' },
+              { icon: Heart, title: 'Уют', desc: 'Домашний комфорт' },
+              { icon: Utensils, title: 'Кухня', desc: 'Национальная кухня' },
             ].map((item, i) => (
-              <div key={i} className="text-center p-6">
-                <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
-                  <item.icon className="w-7 h-7 text-primary" />
+              <div key={i} className="text-center p-4 md:p-6">
+                <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 bg-primary/10 rounded-full flex items-center justify-center">
+                  <item.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <h3 className="font-semibold mb-1 text-sm md:text-base">{item.title}</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Rooms Section */}
-      <section id="rooms" className="py-20 bg-background">
+      {/* Rooms Section - Full Screen */}
+      <section id="rooms" ref={roomsRef} className="min-h-screen flex items-center py-20 bg-background snap-start snap-always">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <Badge className="mb-4">Размещение</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Наши домики</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Выберите идеальный домик для вашего отдыха. Каждый из них обладает уникальным характером и неповторимой атмосферой.
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Наши домики</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+              Два уникальных домика для вашего идеального отдыха
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {rooms.map((room) => (
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
+            {rooms.slice(0, 2).map((room) => (
               <Card 
                 key={room.id} 
                 className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30"
                 onClick={() => openRoomModal(room)}
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
                   <img 
                     src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                     alt={room.name}
@@ -398,10 +389,8 @@ export default function GuestHouseLanding() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-primary text-white text-sm">
-                        {room.price} AZN / ночь
-                      </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-primary text-white text-sm">{room.price} AZN / ночь</Badge>
                       <Badge variant="secondary" className="bg-white/20 text-white border-0 text-sm">
                         <Users className="w-3 h-3 mr-1" />
                         до {room.capacity} гостей
@@ -410,20 +399,17 @@ export default function GuestHouseLanding() {
                   </div>
                 </div>
                 <CardHeader>
-                  <CardTitle className="text-xl">{room.name}</CardTitle>
-                  <CardDescription className="line-clamp-3">{room.description}</CardDescription>
+                  <CardTitle className="text-lg md:text-xl">{room.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 text-sm">{room.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-1 mb-4">
                     {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs px-2 py-0.5">
+                      <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
                         {getAmenityIcon(amenity)}
                         {amenity}
                       </Badge>
                     ))}
-                    {parseAmenities(room.amenities).length > 4 && (
-                      <Badge variant="outline" className="text-xs px-2 py-0.5">+{parseAmenities(room.amenities).length - 4}</Badge>
-                    )}
                   </div>
                   <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
                     Подробнее
@@ -436,18 +422,18 @@ export default function GuestHouseLanding() {
         </div>
       </section>
 
-      {/* Gallery Section */}
-      <section id="gallery" className="py-20 bg-muted/30">
+      {/* Gallery Section - Full Screen */}
+      <section id="gallery" ref={galleryRef} className="min-h-screen flex items-center py-20 bg-muted/30 snap-start snap-always">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <Badge className="mb-4">Галерея</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Окружающая природа</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Габала славится своей невероятной природой. Горы, леса, водопады — всё это рядом с нами.
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Окружающая природа</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+              Горы, леса, водопады — всё это рядом с нами
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto">
             {[
               { src: '/images/gallery-forest.jpg', title: 'Лесные тропы' },
               { src: '/images/gallery-waterfall.jpg', title: 'Горный водопад' },
@@ -456,15 +442,8 @@ export default function GuestHouseLanding() {
               { src: '/images/hero-bg.jpg', title: 'Горный пейзаж' },
               { src: '/images/room-family.jpg', title: 'Семейный номер' },
             ].map((item, i) => (
-              <div 
-                key={i} 
-                className="relative overflow-hidden rounded-xl group cursor-pointer aspect-square"
-              >
-                <img 
-                  src={item.src} 
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+              <div key={i} className="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                <img src={item.src} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-4 left-4 text-white">
                     <p className="font-medium">{item.title}</p>
@@ -476,33 +455,30 @@ export default function GuestHouseLanding() {
         </div>
       </section>
 
-      {/* Reviews Section */}
-      <section id="reviews" className="py-20 bg-background">
+      {/* Reviews Section - Full Screen */}
+      <section id="reviews" ref={reviewsRef} className="min-h-screen flex items-center py-20 bg-background snap-start snap-always">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <Badge className="mb-4">Отзывы</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Что говорят гости</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Нам важно ваше мнение. Посмотрите, что пишут о нас гости.
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Что говорят гости</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+              Нам важно ваше мнение
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {reviews.map((review) => (
               <Card key={review.id} className="relative">
                 <CardHeader>
                   <div className="flex items-center gap-1 mb-2">
                     {Array.from({length: 5}, (_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`} 
-                      />
+                      <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted'}`} />
                     ))}
                   </div>
                   <CardTitle className="text-lg">{review.guestName}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground italic">&ldquo;{review.comment}&rdquo;</p>
+                  <p className="text-muted-foreground italic text-sm">&ldquo;{review.comment}&rdquo;</p>
                 </CardContent>
               </Card>
             ))}
@@ -510,15 +486,15 @@ export default function GuestHouseLanding() {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 bg-primary text-white">
+      {/* Contact Section - Full Screen */}
+      <section id="contact" ref={contactRef} className="min-h-screen flex items-center py-20 bg-primary text-white snap-start snap-always">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-5xl mx-auto">
             <div>
               <Badge className="mb-4 bg-white/20 text-white border-white/30">Контакты</Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Свяжитесь с нами</h2>
-              <p className="text-white/80 mb-8">
-                Готовы ответить на все ваши вопросы и помочь с выбором идеального домика для вашего отдыха.
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">Свяжитесь с нами</h2>
+              <p className="text-white/80 mb-8 text-sm md:text-base">
+                Готовы ответить на все ваши вопросы
               </p>
               
               <div className="space-y-4">
@@ -563,19 +539,9 @@ export default function GuestHouseLanding() {
                   e.preventDefault()
                   alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
                 }}>
-                  <Input 
-                    placeholder="Ваше имя" 
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                  />
-                  <Input 
-                    placeholder="Телефон" 
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                  />
-                  <Textarea 
-                    placeholder="Сообщение" 
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                    rows={3}
-                  />
+                  <Input placeholder="Ваше имя" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+                  <Input placeholder="Телефон" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+                  <Textarea placeholder="Сообщение" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" rows={3} />
                   <Button type="submit" className="w-full bg-white text-primary hover:bg-white/90">
                     <Send className="w-4 h-4 mr-2" />
                     Отправить
@@ -588,21 +554,14 @@ export default function GuestHouseLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-8">
+      <footer className="bg-foreground text-background py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Mountain className="w-6 h-6" />
               <span className="font-semibold">Guest House Gabala</span>
             </div>
-            <p className="text-sm text-background/60">
-              © 2024 Все права защищены. Азербайджан, Габала.
-            </p>
-            <div className="flex gap-4">
-              <Button variant="ghost" size="icon" className="text-background/60 hover:text-background">
-                <MessageCircle className="w-5 h-5" />
-              </Button>
-            </div>
+            <p className="text-sm text-background/60">© 2024 Все права защищены. Азербайджан, Габала.</p>
           </div>
         </div>
       </footer>
@@ -615,35 +574,20 @@ export default function GuestHouseLanding() {
               <DialogHeader>
                 <DialogTitle className="text-2xl">{selectedRoom.name}</DialogTitle>
                 <DialogDescription className="flex items-center gap-3">
-                  <Badge className="bg-primary text-white">
-                    {selectedRoom.price} AZN / ночь
-                  </Badge>
-                  <Badge variant="outline">
-                    <Users className="w-3 h-3 mr-1" />
-                    до {selectedRoom.capacity} гостей
-                  </Badge>
+                  <Badge className="bg-primary text-white">{selectedRoom.price} AZN / ночь</Badge>
+                  <Badge variant="outline"><Users className="w-3 h-3 mr-1" />до {selectedRoom.capacity} гостей</Badge>
                 </DialogDescription>
               </DialogHeader>
               
               {/* Image Gallery */}
               <div className="relative">
                 <div className="aspect-video rounded-lg overflow-hidden">
-                  <img 
-                    src={parseImages(selectedRoom.images)[currentImageIndex] || '/images/hero-bg.jpg'} 
-                    alt={selectedRoom.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={parseImages(selectedRoom.images)[currentImageIndex] || '/images/hero-bg.jpg'} alt={selectedRoom.name} className="w-full h-full object-cover" />
                 </div>
                 {parseImages(selectedRoom.images).length > 1 && (
-                  <div className="flex gap-2 mt-2 overflow-x-auto">
+                  <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
                     {parseImages(selectedRoom.images).map((img: string, i: number) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentImageIndex(i)}
-                        className={`w-20 h-14 rounded overflow-hidden flex-shrink-0 border-2 ${
-                          i === currentImageIndex ? 'border-primary' : 'border-transparent'
-                        }`}
-                      >
+                      <button key={i} onClick={() => setCurrentImageIndex(i)} className={`w-20 h-14 rounded overflow-hidden flex-shrink-0 border-2 ${i === currentImageIndex ? 'border-primary' : 'border-transparent'}`}>
                         <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
                     ))}
@@ -651,13 +595,11 @@ export default function GuestHouseLanding() {
                 )}
               </div>
               
-              {/* Description */}
               <div>
                 <h4 className="font-semibold mb-2">Описание</h4>
-                <p className="text-muted-foreground">{selectedRoom.description}</p>
+                <p className="text-muted-foreground text-sm">{selectedRoom.description}</p>
               </div>
               
-              {/* Advantages */}
               {parseAdvantages(selectedRoom.advantages).length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3">Преимущества</h4>
@@ -672,7 +614,6 @@ export default function GuestHouseLanding() {
                 </div>
               )}
               
-              {/* Amenities */}
               <div>
                 <h4 className="font-semibold mb-3">Удобства</h4>
                 <div className="flex flex-wrap gap-2">
@@ -685,19 +626,15 @@ export default function GuestHouseLanding() {
                 </div>
               </div>
               
-              {/* Conditions */}
               {selectedRoom.conditions && (
                 <div>
                   <h4 className="font-semibold mb-2">Условия проживания</h4>
                   <div className="bg-muted/50 rounded-lg p-4">
-                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
-                      {selectedRoom.conditions}
-                    </pre>
+                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{selectedRoom.conditions}</pre>
                   </div>
                 </div>
               )}
               
-              {/* Contact Button */}
               <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
                 <a href={`tel:${phone}`} onClick={() => setRoomModalOpen(false)}>
                   <Phone className="w-4 h-4 mr-2" />
@@ -719,13 +656,7 @@ export default function GuestHouseLanding() {
                 <DialogDescription>Введите пароль для доступа</DialogDescription>
               </DialogHeader>
               <div className="flex gap-2">
-                <Input 
-                  type="password" 
-                  placeholder="Пароль" 
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
-                />
+                <Input type="password" placeholder="Пароль" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()} />
                 <Button onClick={handleAdminLogin}>Войти</Button>
               </div>
               <p className="text-xs text-muted-foreground">Демо пароль: admin123</p>
@@ -734,7 +665,7 @@ export default function GuestHouseLanding() {
             <>
               <DialogHeader>
                 <DialogTitle>Управление домиками</DialogTitle>
-                <DialogDescription>Редактирование информации о домиках</DialogDescription>
+                <DialogDescription>Редактирование информации</DialogDescription>
               </DialogHeader>
               
               <div className="space-y-6 py-4">
@@ -745,98 +676,110 @@ export default function GuestHouseLanding() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label>Название</Label>
-                            <Input 
-                              value={editingRoom.name}
-                              onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})}
-                            />
+                            <Input value={editingRoom.name} onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})} />
                           </div>
                           <div>
                             <Label>Цена (AZN)</Label>
-                            <Input 
-                              type="number"
-                              value={editingRoom.price}
-                              onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value)})}
-                            />
+                            <Input type="number" value={editingRoom.price} onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value)})} />
                           </div>
                         </div>
                         
                         <div>
                           <Label>Описание</Label>
-                          <Textarea 
-                            value={editingRoom.description}
-                            onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})}
-                            rows={3}
-                          />
+                          <Textarea value={editingRoom.description} onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})} rows={2} />
                         </div>
                         
                         <div>
                           <Label>Условия проживания</Label>
-                          <Textarea 
-                            value={editingRoom.conditions}
-                            onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})}
-                            rows={4}
-                            placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• и т.д."
-                          />
+                          <Textarea value={editingRoom.conditions} onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})} rows={3} placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00" />
                         </div>
                         
                         <div>
                           <Label>Преимущества (каждое с новой строки)</Label>
-                          <Textarea 
-                            value={parseAdvantages(editingRoom.advantages).join('\n')}
-                            onChange={(e) => setEditingRoom({
-                              ...editingRoom, 
-                              advantages: JSON.stringify(e.target.value.split('\n').filter(Boolean))
-                            })}
-                            rows={4}
-                          />
+                          <Textarea value={parseAdvantages(editingRoom.advantages).join('\n')} onChange={(e) => setEditingRoom({...editingRoom, advantages: JSON.stringify(e.target.value.split('\n').filter(Boolean))})} rows={3} />
                         </div>
                         
                         <div>
                           <Label>Удобства (через запятую)</Label>
-                          <Input 
-                            value={parseAmenities(editingRoom.amenities).join(', ')}
-                            onChange={(e) => setEditingRoom({
-                              ...editingRoom, 
-                              amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))
-                            })}
-                          />
+                          <Input value={parseAmenities(editingRoom.amenities).join(', ')} onChange={(e) => setEditingRoom({...editingRoom, amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))})} />
                         </div>
                         
+                        {/* Simple Image Management */}
                         <div>
-                          <Label>URL изображений (каждое с новой строки)</Label>
-                          <Textarea 
-                            value={parseImages(editingRoom.images).join('\n')}
-                            onChange={(e) => setEditingRoom({
-                              ...editingRoom, 
-                              images: JSON.stringify(e.target.value.split('\n').filter(Boolean))
-                            })}
-                            rows={3}
-                            placeholder="/images/room1.jpg&#10;/images/room2.jpg"
-                          />
+                          <Label className="flex items-center gap-2 mb-2">
+                            Изображения
+                            <Badge variant="secondary">{parseImages(editingRoom.images).length}</Badge>
+                          </Label>
+                          
+                          {/* Image Previews */}
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {parseImages(editingRoom.images).map((img: string, i: number) => (
+                              <div key={i} className="relative group aspect-video rounded overflow-hidden border">
+                                <img src={img} alt="" className="w-full h-full object-cover" />
+                                <button
+                                  onClick={() => removeImageFromRoom(i)}
+                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                            {/* Add Image Placeholder */}
+                            <div className="aspect-video rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
+                              const url = prompt('Введите URL изображения:')
+                              if (url) addImageToRoom(url)
+                            }}>
+                              <div className="text-center text-muted-foreground">
+                                <Plus className="w-6 h-6 mx-auto mb-1" />
+                                <span className="text-xs">Добавить</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* URL Input */}
+                          <div className="flex gap-2">
+                            <Input 
+                              id={`img-url-${room.id}`}
+                              placeholder="Вставьте URL изображения" 
+                              className="flex-1"
+                            />
+                            <Button 
+                              size="icon" 
+                              variant="secondary"
+                              onClick={() => {
+                                const input = document.getElementById(`img-url-${room.id}`) as HTMLInputElement
+                                if (input?.value) {
+                                  addImageToRoom(input.value)
+                                  input.value = ''
+                                }
+                              }}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                         
                         <div className="flex gap-2">
-                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary">
-                            Сохранить
-                          </Button>
-                          <Button variant="outline" onClick={() => setEditingRoom(null)}>
-                            Отмена
-                          </Button>
+                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary">Сохранить</Button>
+                          <Button variant="outline" onClick={() => setEditingRoom(null)}>Отмена</Button>
                         </div>
                       </CardContent>
                     ) : (
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <p className="font-semibold text-lg">{room.name}</p>
-                              <Badge className="bg-primary">{room.price} AZN</Badge>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-16 h-12 rounded overflow-hidden flex-shrink-0">
+                              <img src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} alt="" className="w-full h-full object-cover" />
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{room.description}</p>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">{room.name}</p>
+                                <Badge className="bg-primary">{room.price} AZN</Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{parseImages(room.images).length} фото</p>
+                            </div>
                           </div>
-                          <Button onClick={() => setEditingRoom(room)}>
-                            Редактировать
-                          </Button>
+                          <Button onClick={() => setEditingRoom(room)}>Редактировать</Button>
                         </div>
                       </CardContent>
                     )}
@@ -845,10 +788,7 @@ export default function GuestHouseLanding() {
               </div>
               
               <div className="flex justify-end">
-                <Button variant="outline" onClick={() => {
-                  setIsAdmin(false)
-                  setAdminPassword('')
-                }}>
+                <Button variant="outline" onClick={() => { setIsAdmin(false); setAdminPassword(''); setEditingRoom(null); }}>
                   Выйти
                 </Button>
               </div>
