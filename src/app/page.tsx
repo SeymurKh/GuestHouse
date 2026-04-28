@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
 import { 
   Mountain, Trees, Phone, Mail, MapPin, Star, Users, 
   ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
   Flame, Car, Utensils, Heart, MessageCircle, Send,
-  Settings
+  Settings, Check, ArrowRight
 } from 'lucide-react'
 
 // Types
@@ -20,6 +21,8 @@ interface Room {
   id: string
   name: string
   description: string
+  conditions: string
+  advantages: string
   price: number
   capacity: number
   amenities: string
@@ -43,12 +46,18 @@ export default function GuestHouseLanding() {
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
+  // Room detail modal state
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  
   // Admin state
   const [adminOpen, setAdminOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null)
   
-  // Slider state
+  // Slider state for hero
   const [currentSlide, setCurrentSlide] = useState(0)
 
   // Initialize data
@@ -82,7 +91,7 @@ export default function GuestHouseLanding() {
     initData()
   }, [])
 
-  // Auto-slide effect
+  // Auto-slide effect for hero
   useEffect(() => {
     if (rooms.length === 0) return
     const interval = setInterval(() => {
@@ -100,10 +109,35 @@ export default function GuestHouseLanding() {
     }
   }
 
+  // Open room detail modal
+  const openRoomModal = (room: Room) => {
+    setSelectedRoom(room)
+    setCurrentImageIndex(0)
+    setRoomModalOpen(true)
+  }
+
   // Parse amenities
   const parseAmenities = (amenitiesStr: string) => {
     try {
       return JSON.parse(amenitiesStr)
+    } catch {
+      return []
+    }
+  }
+
+  // Parse advantages
+  const parseAdvantages = (advantagesStr: string) => {
+    try {
+      return JSON.parse(advantagesStr)
+    } catch {
+      return []
+    }
+  }
+
+  // Parse images
+  const parseImages = (imagesStr: string) => {
+    try {
+      return JSON.parse(imagesStr)
     } catch {
       return []
     }
@@ -124,6 +158,25 @@ export default function GuestHouseLanding() {
       'Сейф': <Shield className="w-4 h-4" />,
     }
     return icons[amenity] || <Sparkles className="w-4 h-4" />
+  }
+
+  // Save room changes
+  const saveRoomChanges = async (room: Room) => {
+    try {
+      const res = await fetch('/api/rooms', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(room)
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setRooms(rooms.map(r => r.id === room.id ? updated : r))
+        setEditingRoom(null)
+        alert('Сохранено успешно!')
+      }
+    } catch {
+      alert('Ошибка при сохранении')
+    }
   }
 
   if (loading) {
@@ -149,7 +202,7 @@ export default function GuestHouseLanding() {
           
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors">Номера</a>
+            <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors">Домики</a>
             <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors">Галерея</a>
             <a href="#reviews" className="text-muted-foreground hover:text-primary transition-colors">Отзывы</a>
             <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors">Контакты</a>
@@ -185,7 +238,7 @@ export default function GuestHouseLanding() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-background border-b p-4">
             <nav className="flex flex-col gap-4">
-              <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Номера</a>
+              <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Домики</a>
               <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Галерея</a>
               <a href="#reviews" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Отзывы</a>
               <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Контакты</a>
@@ -225,7 +278,7 @@ export default function GuestHouseLanding() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8">
                   <a href="#rooms">
-                    Посмотреть номера
+                    Наши домики
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </a>
                 </Button>
@@ -252,10 +305,10 @@ export default function GuestHouseLanding() {
                           : 'opacity-0 translate-x-full scale-95'
                     }`}
                   >
-                    <Card className="overflow-hidden shadow-2xl">
+                    <Card className="overflow-hidden shadow-2xl cursor-pointer hover:shadow-3xl transition-shadow" onClick={() => openRoomModal(room)}>
                       <div className="relative h-64 md:h-72">
                         <img 
-                          src={JSON.parse(room.images)[0] || '/images/hero-bg.jpg'} 
+                          src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                           alt={room.name}
                           className="w-full h-full object-cover"
                         />
@@ -324,54 +377,57 @@ export default function GuestHouseLanding() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <Badge className="mb-4">Размещение</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Наши номера</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Наши домики</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Выберите идеальный номер для вашего отдыха. От уютных стандартов до премиальных коттеджей.
+              Выберите идеальный домик для вашего отдыха. Каждый из них обладает уникальным характером и неповторимой атмосферой.
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {rooms.map((room) => (
-              <Card key={room.id} className="overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col h-full">
-                <div className="relative h-48 overflow-hidden">
+              <Card 
+                key={room.id} 
+                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30"
+                onClick={() => openRoomModal(room)}
+              >
+                <div className="relative h-64 overflow-hidden">
                   <img 
-                    src={JSON.parse(room.images)[0] || '/images/hero-bg.jpg'} 
+                    src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                     alt={room.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-3 right-3">
-                    <Badge className="bg-primary text-white text-sm">
-                      {room.price} AZN
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{room.name}</CardTitle>
-                    <div className="flex items-center text-muted-foreground text-xs">
-                      <Users className="w-3 h-3 mr-1" />
-                      {room.capacity}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className="bg-primary text-white text-sm">
+                        {room.price} AZN / ночь
+                      </Badge>
+                      <Badge variant="secondary" className="bg-white/20 text-white border-0 text-sm">
+                        <Users className="w-3 h-3 mr-1" />
+                        до {room.capacity} гостей
+                      </Badge>
                     </div>
                   </div>
-                  <CardDescription className="line-clamp-2 text-sm">{room.description}</CardDescription>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">{room.name}</CardTitle>
+                  <CardDescription className="line-clamp-3">{room.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col flex-1 mt-auto">
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {parseAmenities(room.amenities).slice(0, 3).map((amenity: string, i: number) => (
+                <CardContent>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
                       <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs px-2 py-0.5">
                         {getAmenityIcon(amenity)}
                         {amenity}
                       </Badge>
                     ))}
-                    {parseAmenities(room.amenities).length > 3 && (
-                      <Badge variant="outline" className="text-xs px-2 py-0.5">+{parseAmenities(room.amenities).length - 3}</Badge>
+                    {parseAmenities(room.amenities).length > 4 && (
+                      <Badge variant="outline" className="text-xs px-2 py-0.5">+{parseAmenities(room.amenities).length - 4}</Badge>
                     )}
                   </div>
-                  <Button asChild size="sm" className="w-full bg-primary hover:bg-primary/90 mt-auto">
-                    <a href={`tel:${phone}`}>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Узнать подробнее
-                    </a>
+                  <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
+                    Подробнее
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
@@ -462,7 +518,7 @@ export default function GuestHouseLanding() {
               <Badge className="mb-4 bg-white/20 text-white border-white/30">Контакты</Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Свяжитесь с нами</h2>
               <p className="text-white/80 mb-8">
-                Готовы ответить на все ваши вопросы и помочь с выбором идеального номера для вашего отдыха.
+                Готовы ответить на все ваши вопросы и помочь с выбором идеального домика для вашего отдыха.
               </p>
               
               <div className="space-y-4">
@@ -551,9 +607,111 @@ export default function GuestHouseLanding() {
         </div>
       </footer>
 
+      {/* Room Detail Modal */}
+      <Dialog open={roomModalOpen} onOpenChange={setRoomModalOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          {selectedRoom && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedRoom.name}</DialogTitle>
+                <DialogDescription className="flex items-center gap-3">
+                  <Badge className="bg-primary text-white">
+                    {selectedRoom.price} AZN / ночь
+                  </Badge>
+                  <Badge variant="outline">
+                    <Users className="w-3 h-3 mr-1" />
+                    до {selectedRoom.capacity} гостей
+                  </Badge>
+                </DialogDescription>
+              </DialogHeader>
+              
+              {/* Image Gallery */}
+              <div className="relative">
+                <div className="aspect-video rounded-lg overflow-hidden">
+                  <img 
+                    src={parseImages(selectedRoom.images)[currentImageIndex] || '/images/hero-bg.jpg'} 
+                    alt={selectedRoom.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {parseImages(selectedRoom.images).length > 1 && (
+                  <div className="flex gap-2 mt-2 overflow-x-auto">
+                    {parseImages(selectedRoom.images).map((img: string, i: number) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentImageIndex(i)}
+                        className={`w-20 h-14 rounded overflow-hidden flex-shrink-0 border-2 ${
+                          i === currentImageIndex ? 'border-primary' : 'border-transparent'
+                        }`}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Description */}
+              <div>
+                <h4 className="font-semibold mb-2">Описание</h4>
+                <p className="text-muted-foreground">{selectedRoom.description}</p>
+              </div>
+              
+              {/* Advantages */}
+              {parseAdvantages(selectedRoom.advantages).length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3">Преимущества</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {parseAdvantages(selectedRoom.advantages).map((adv: string, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span>{adv}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Amenities */}
+              <div>
+                <h4 className="font-semibold mb-3">Удобства</h4>
+                <div className="flex flex-wrap gap-2">
+                  {parseAmenities(selectedRoom.amenities).map((amenity: string, i: number) => (
+                    <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                      {getAmenityIcon(amenity)}
+                      {amenity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Conditions */}
+              {selectedRoom.conditions && (
+                <div>
+                  <h4 className="font-semibold mb-2">Условия проживания</h4>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">
+                      {selectedRoom.conditions}
+                    </pre>
+                  </div>
+                </div>
+              )}
+              
+              {/* Contact Button */}
+              <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
+                <a href={`tel:${phone}`} onClick={() => setRoomModalOpen(false)}>
+                  <Phone className="w-4 h-4 mr-2" />
+                  Забронировать по телефону
+                </a>
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Admin Dialog */}
       <Dialog open={adminOpen} onOpenChange={setAdminOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           {!isAdmin ? (
             <>
               <DialogHeader>
@@ -575,56 +733,124 @@ export default function GuestHouseLanding() {
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle>Управление номерами</DialogTitle>
-                <DialogDescription>Изменение цен на номера</DialogDescription>
+                <DialogTitle>Управление домиками</DialogTitle>
+                <DialogDescription>Редактирование информации о домиках</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              
+              <div className="space-y-6 py-4">
                 {rooms.map((room) => (
-                  <Card key={room.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <p className="font-medium">{room.name}</p>
-                          <p className="text-sm text-muted-foreground">до {room.capacity} гостей</p>
+                  <Card key={room.id} className="overflow-hidden">
+                    {editingRoom?.id === room.id ? (
+                      <CardContent className="p-4 space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Название</Label>
+                            <Input 
+                              value={editingRoom.name}
+                              onChange={(e) => setEditingRoom({...editingRoom, name: e.target.value})}
+                            />
+                          </div>
+                          <div>
+                            <Label>Цена (AZN)</Label>
+                            <Input 
+                              type="number"
+                              value={editingRoom.price}
+                              onChange={(e) => setEditingRoom({...editingRoom, price: parseFloat(e.target.value)})}
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Цена:</span>
-                          <Input 
-                            type="number" 
-                            className="w-24" 
-                            defaultValue={room.price}
-                            id={`price-${room.id}`}
+                        
+                        <div>
+                          <Label>Описание</Label>
+                          <Textarea 
+                            value={editingRoom.description}
+                            onChange={(e) => setEditingRoom({...editingRoom, description: e.target.value})}
+                            rows={3}
                           />
-                          <span className="text-sm">AZN</span>
-                          <Button 
-                            size="sm" 
-                            onClick={async () => {
-                              const input = document.getElementById(`price-${room.id}`) as HTMLInputElement
-                              const newPrice = input?.value
-                              if (newPrice) {
-                                try {
-                                  const res = await fetch('/api/rooms', {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ id: room.id, price: newPrice })
-                                  })
-                                  if (res.ok) {
-                                    setRooms(rooms.map(r => r.id === room.id ? {...r, price: parseFloat(newPrice)} : r))
-                                    alert('Цена обновлена!')
-                                  }
-                                } catch {
-                                  alert('Ошибка при обновлении')
-                                }
-                              }
-                            }}
-                          >
+                        </div>
+                        
+                        <div>
+                          <Label>Условия проживания</Label>
+                          <Textarea 
+                            value={editingRoom.conditions}
+                            onChange={(e) => setEditingRoom({...editingRoom, conditions: e.target.value})}
+                            rows={4}
+                            placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• и т.д."
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label>Преимущества (каждое с новой строки)</Label>
+                          <Textarea 
+                            value={parseAdvantages(editingRoom.advantages).join('\n')}
+                            onChange={(e) => setEditingRoom({
+                              ...editingRoom, 
+                              advantages: JSON.stringify(e.target.value.split('\n').filter(Boolean))
+                            })}
+                            rows={4}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label>Удобства (через запятую)</Label>
+                          <Input 
+                            value={parseAmenities(editingRoom.amenities).join(', ')}
+                            onChange={(e) => setEditingRoom({
+                              ...editingRoom, 
+                              amenities: JSON.stringify(e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))
+                            })}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label>URL изображений (каждое с новой строки)</Label>
+                          <Textarea 
+                            value={parseImages(editingRoom.images).join('\n')}
+                            onChange={(e) => setEditingRoom({
+                              ...editingRoom, 
+                              images: JSON.stringify(e.target.value.split('\n').filter(Boolean))
+                            })}
+                            rows={3}
+                            placeholder="/images/room1.jpg&#10;/images/room2.jpg"
+                          />
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button onClick={() => saveRoomChanges(editingRoom)} className="bg-primary">
                             Сохранить
                           </Button>
+                          <Button variant="outline" onClick={() => setEditingRoom(null)}>
+                            Отмена
+                          </Button>
                         </div>
-                      </div>
-                    </CardContent>
+                      </CardContent>
+                    ) : (
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3">
+                              <p className="font-semibold text-lg">{room.name}</p>
+                              <Badge className="bg-primary">{room.price} AZN</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{room.description}</p>
+                          </div>
+                          <Button onClick={() => setEditingRoom(room)}>
+                            Редактировать
+                          </Button>
+                        </div>
+                      </CardContent>
+                    )}
                   </Card>
                 ))}
+              </div>
+              
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={() => {
+                  setIsAdmin(false)
+                  setAdminPassword('')
+                }}>
+                  Выйти
+                </Button>
               </div>
             </>
           )}
