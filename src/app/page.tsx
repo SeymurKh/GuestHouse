@@ -682,13 +682,17 @@ export default function GuestHouseLanding() {
                 </DialogDescription>
               </DialogHeader>
               
-              {/* Image Gallery */}
-              <div className="relative">
-                <div className="aspect-video rounded-lg overflow-hidden">
+              {/* 1. Изображения */}
+              <div>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  Изображения
+                  <Badge variant="secondary" className="text-xs">{parseImages(selectedRoom.images).length}</Badge>
+                </h4>
+                <div className="aspect-video rounded-lg overflow-hidden mb-2">
                   <img src={parseImages(selectedRoom.images)[currentImageIndex] || '/images/hero-bg.jpg'} alt={selectedRoom.name} className="w-full h-full object-cover" />
                 </div>
                 {parseImages(selectedRoom.images).length > 1 && (
-                  <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
                     {parseImages(selectedRoom.images).map((img: string, i: number) => (
                       <button key={i} onClick={() => setCurrentImageIndex(i)} className={`w-20 h-14 rounded overflow-hidden flex-shrink-0 border-2 ${i === currentImageIndex ? 'border-primary' : 'border-transparent'}`}>
                         <img src={img} alt="" className="w-full h-full object-cover" />
@@ -698,11 +702,23 @@ export default function GuestHouseLanding() {
                 )}
               </div>
               
+              {/* 2. Описание */}
               <div>
                 <h4 className="font-semibold mb-2">Описание</h4>
                 <p className="text-muted-foreground text-sm">{selectedRoom.description}</p>
               </div>
               
+              {/* 3. Условия проживания */}
+              {selectedRoom.conditions && (
+                <div>
+                  <h4 className="font-semibold mb-2">Условия проживания</h4>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{selectedRoom.conditions}</pre>
+                  </div>
+                </div>
+              )}
+              
+              {/* 4. Преимущества */}
               {parseAdvantages(selectedRoom.advantages).length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3">Преимущества</h4>
@@ -717,6 +733,7 @@ export default function GuestHouseLanding() {
                 </div>
               )}
               
+              {/* 5. Удобства */}
               <div>
                 <h4 className="font-semibold mb-3">Удобства</h4>
                 <div className="flex flex-wrap gap-2">
@@ -728,15 +745,6 @@ export default function GuestHouseLanding() {
                   ))}
                 </div>
               </div>
-              
-              {selectedRoom.conditions && (
-                <div>
-                  <h4 className="font-semibold mb-2">Условия проживания</h4>
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{selectedRoom.conditions}</pre>
-                  </div>
-                </div>
-              )}
               
               <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
                 <a href={`tel:${phone}`} onClick={() => setRoomModalOpen(false)}>
