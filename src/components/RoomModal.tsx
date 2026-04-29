@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -71,6 +71,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         {/* Header - with extra right padding to avoid close button */}
         <DialogHeader className="pb-4 border-b pr-12">
           <DialogTitle className="text-2xl mb-2">{roomName}</DialogTitle>
+          <DialogDescription className="sr-only">{t.modal.description}</DialogDescription>
           <div className="flex items-center gap-3 flex-wrap">
             <Badge className="bg-primary text-white text-sm px-3 py-1">{room.price} {t.hero.perNight}</Badge>
             <Badge variant="outline" className="text-sm px-3 py-1">
