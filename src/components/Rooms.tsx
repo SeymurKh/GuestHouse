@@ -66,7 +66,7 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
             return (
               <Card 
                 key={room.id} 
-                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95 flex flex-col"
+                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 bg-white/95 flex flex-col hover:scale-[1.02]"
                 onClick={() => onRoomClick(room)}
               >
                 {/* Image Section - Fixed Height */}
@@ -95,7 +95,7 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                     <CardDescription className="line-clamp-2 text-sm">{roomDescription}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col justify-between">
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-1">
                       {parseLocalizedAmenities(room.amenities, lang).slice(0, 4).map((amenity: string, i: number) => (
                         <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
                           {getAmenityIcon(amenity)}
@@ -103,10 +103,10 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                         </Badge>
                       ))}
                     </div>
-                    <Button className="w-full bg-primary hover:bg-primary/90 group/btn mt-auto">
+                    <div className="flex items-center justify-center gap-2 text-primary font-medium mt-4 pt-3 border-t">
                       {t.rooms.details}
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </CardContent>
                 </div>
               </Card>
