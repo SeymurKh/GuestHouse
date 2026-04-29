@@ -11,6 +11,26 @@ export const parseAmenities = (amenitiesStr: string | null | undefined): string[
   }
 }
 
+// Parse localized amenities for specific language
+export const parseLocalizedAmenities = (
+  amenitiesStr: string | null | undefined, 
+  lang: Language
+): string[] => {
+  if (!amenitiesStr) return []
+  try {
+    const parsed = JSON.parse(amenitiesStr)
+    // Old format: simple array - return as-is
+    if (Array.isArray(parsed)) return parsed
+    // New format: localized object { ru: [], az: [], en: [] }
+    if (typeof parsed === 'object' && parsed !== null) {
+      return parsed[lang] || parsed.ru || []
+    }
+    return []
+  } catch { 
+    return [] 
+  }
+}
+
 export const parseAdvantages = (advantagesStr: string | null | undefined): string[] => {
   if (!advantagesStr) return []
   try {

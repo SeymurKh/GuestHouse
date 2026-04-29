@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Users, Check, Phone, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
 import { Room } from '@/types'
-import { parseImages, parseAmenities, parseLocalizedAdvantages } from '@/lib/parse'
+import { parseImages, parseLocalizedAmenities, parseLocalizedAdvantages } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
 
@@ -142,7 +142,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
           <div>
             <h4 className="font-medium text-sm mb-2">{t.modal.amenities}</h4>
             <div className="flex flex-wrap gap-1.5">
-              {parseAmenities(room.amenities).map((amenity: string, i: number) => (
+              {parseLocalizedAmenities(room.amenities, lang).map((amenity: string, i: number) => (
                 <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs px-2 py-1">
                   {getAmenityIcon(amenity)}
                   {amenity}

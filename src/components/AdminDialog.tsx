@@ -62,11 +62,11 @@ export function AdminDialog({
   const [editDescription, setEditDescription] = useState<LocalizedField>({ ru: '', az: '', en: '' })
   const [editConditions, setEditConditions] = useState<LocalizedField>({ ru: '', az: '', en: '' })
   const [editAdvantages, setEditAdvantages] = useState<LocalizedField>({ ru: '', az: '', en: '' })
+  const [editAmenities, setEditAmenities] = useState<LocalizedField>({ ru: '', az: '', en: '' })
   
-  // Non-localized fields
+  // Non-localized fields (common for all languages)
   const [editPrice, setEditPrice] = useState(0)
   const [editCapacity, setEditCapacity] = useState(2)
-  const [editAmenitiesText, setEditAmenitiesText] = useState('')
   const [editImages, setEditImages] = useState<string[]>([])
   const [uploadingImage, setUploadingImage] = useState(false)
   
@@ -122,9 +122,8 @@ export function AdminDialog({
     setEditCapacity(room.capacity)
     setEditDescription(parseLocalizedStringToForm(room.description))
     setEditConditions(parseLocalizedStringToForm(room.conditions))
-    const advParsed = parseLocalizedStringToForm(room.advantages)
-    setEditAdvantages(advParsed)
-    setEditAmenitiesText(parseAmenities(room.amenities).join(', '))
+    setEditAdvantages(parseLocalizedStringToForm(room.advantages))
+    setEditAmenities(parseLocalizedStringToForm(room.amenities))
     setEditImages(parseImages(room.images))
     setEditLang('ru')
   }
@@ -137,7 +136,7 @@ export function AdminDialog({
     setEditDescription({ ru: '', az: '', en: '' })
     setEditConditions({ ru: '', az: '', en: '' })
     setEditAdvantages({ ru: '', az: '', en: '' })
-    setEditAmenitiesText('')
+    setEditAmenities({ ru: '', az: '', en: '' })
     setEditImages([])
   }
 
@@ -229,10 +228,12 @@ export function AdminDialog({
       en: editAdvantages.en.split('\n').map(s => s.trim()).filter(Boolean),
     }
     
-    const amenities = editAmenitiesText
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
+    // Parse amenities for each language (split by comma)
+    const amenitiesArr = {
+      ru: editAmenities.ru.split(',').map(s => s.trim()).filter(Boolean),
+      az: editAmenities.az.split(',').map(s => s.trim()).filter(Boolean),
+      en: editAmenities.en.split(',').map(s => s.trim()).filter(Boolean),
+    }
     
     const roomData = {
       id: editId,
@@ -242,7 +243,7 @@ export function AdminDialog({
       description: createLocalizedString(editDescription.ru, editDescription.az, editDescription.en),
       conditions: createLocalizedString(editConditions.ru, editConditions.az, editConditions.en),
       advantages: JSON.stringify(advantagesArr),
-      amenities: JSON.stringify(amenities),
+      amenities: JSON.stringify(amenitiesArr),
       images: JSON.stringify(editImages)
     }
     
@@ -576,11 +577,14 @@ export function AdminDialog({
                           
                           {/* Amenities */}
                           <div>
-                            <Label htmlFor="edit-amenities">Удобства (через запятую, общий для всех языков)</Label>
+                            <Label htmlFor="edit-amenities">
+                              Удобства (через запятую)
+                              <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                            </Label>
                             <Input 
                               id="edit-amenities" 
-                              value={editAmenitiesText} 
-                              onChange={(e) => setEditAmenitiesText(e.target.value)} 
+                              value={editAmenities[editLang]} 
+                              onChange={(e) => updateLocalizedField(setEditAmenities, editAmenities, editLang, e.target.value)} 
                               placeholder="Wi-Fi, Камин, ТВ, Кухня"
                             />
                           </div>

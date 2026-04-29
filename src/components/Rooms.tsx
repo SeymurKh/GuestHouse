@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, ArrowRight, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
 import { Room } from '@/types'
-import { parseImages, parseAmenities } from '@/lib/parse'
+import { parseImages, parseLocalizedAmenities } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
 
@@ -96,7 +96,7 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col justify-between">
                     <div className="flex flex-wrap gap-1 mb-4">
-                      {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
+                      {parseLocalizedAmenities(room.amenities, lang).slice(0, 4).map((amenity: string, i: number) => (
                         <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
                           {getAmenityIcon(amenity)}
                           {amenity}
