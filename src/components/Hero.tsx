@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Trees, Phone, ChevronRight, ChevronDown, Users } from 'lucide-react'
+import { Trees, Phone, ChevronRight, Users } from 'lucide-react'
 import { RoomImage, Room } from '@/types'
 
 interface HeroProps {
@@ -16,7 +16,7 @@ interface HeroProps {
 
 export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms, onRoomClick }: HeroProps) {
   return (
-    <section className="min-h-screen flex items-center pt-20 pb-8 bg-gradient-to-br from-background via-muted/30 to-background snap-start">
+    <section className="min-h-screen flex items-center pt-20 pb-8 bg-gradient-to-br from-background via-muted/30 to-background snap-start snap-always">
       <div className="container mx-auto px-4 h-full">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Side - Welcome Text */}
@@ -106,11 +106,6 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
               ))}
             </div>
           </div>
-        </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-          <ChevronDown className="w-6 h-6 text-muted-foreground" />
         </div>
       </div>
     </section>

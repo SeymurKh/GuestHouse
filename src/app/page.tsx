@@ -14,7 +14,8 @@ import {
   Contact, 
   Footer, 
   RoomModal, 
-  AdminDialog 
+  AdminDialog,
+  ScrollIndicator
 } from '@/components'
 
 // Types
@@ -134,7 +135,19 @@ export default function GuestHouseLanding() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
+    <div 
+      className="min-h-screen flex flex-col bg-background overflow-x-hidden relative"
+      style={{
+        backgroundImage: 'url(/images/hero-bg.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
+      {/* Semi-transparent overlay for readability */}
+      <div className="absolute inset-0 bg-background/95 pointer-events-none" />
+      
       {/* Header */}
       <Header 
         phone={phone}
@@ -197,6 +210,9 @@ export default function GuestHouseLanding() {
         rooms={rooms}
         onRoomUpdate={handleRoomUpdate}
       />
+
+      {/* Dynamic Scroll Indicator */}
+      <ScrollIndicator />
     </div>
   )
 }

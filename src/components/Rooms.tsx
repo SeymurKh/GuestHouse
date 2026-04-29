@@ -30,7 +30,7 @@ const getAmenityIcon = (amenity: string) => {
 
 export function Rooms({ rooms, onRoomClick }: RoomsProps) {
   return (
-    <section id="rooms" className="min-h-screen flex items-center py-16 bg-background snap-start">
+    <section id="rooms" className="min-h-screen flex items-center py-16 bg-background snap-start snap-always">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <Badge className="mb-4">Размещение</Badge>

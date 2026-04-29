@@ -13,7 +13,7 @@ const galleryImages = [
 
 export function Gallery() {
   return (
-    <section id="gallery" className="min-h-screen flex items-center py-16 bg-muted/30 snap-start">
+    <section id="gallery" className="min-h-screen flex items-center py-16 bg-muted/30 snap-start snap-always">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <Badge className="mb-4">Галерея</Badge>
