@@ -73,11 +73,22 @@ export default function GuestHouseLanding() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [fileInputKey, setFileInputKey] = useState(0)
   
-  // Slider state for hero
+  // Slider state for hero - now cycles through ALL photos from all rooms
   const [currentSlide, setCurrentSlide] = useState(0)
   
   // Review slider state
   const [currentReview, setCurrentReview] = useState(0)
+  
+  // Collect ALL images from all rooms with room info
+  const allRoomImages = rooms.flatMap(room => 
+    parseImages(room.images).map(img => ({
+      image: img,
+      roomName: room.name,
+      price: room.price,
+      capacity: room.capacity,
+      roomId: room.id
+    }))
+  )
 
   // Initialize data
   useEffect(() => {
@@ -102,14 +113,14 @@ export default function GuestHouseLanding() {
     initData()
   }, [])
 
-  // Auto-slide effect for hero
+  // Auto-slide effect for hero - cycles through ALL images
   useEffect(() => {
-    if (rooms.length === 0) return
+    if (allRoomImages.length <= 1) return
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % rooms.length)
-    }, 5000)
+      setCurrentSlide((prev) => (prev + 1) % allRoomImages.length)
+    }, 4000)
     return () => clearInterval(interval)
-  }, [rooms.length])
+  }, [allRoomImages.length])
 
   // Auto-slide effect for reviews
   useEffect(() => {
@@ -442,52 +453,59 @@ export default function GuestHouseLanding() {
               </div>
             </div>
             
-            {/* Right Side - Sliding Images (only 2 rooms) */}
+            {/* Right Side - Sliding Images (ALL photos from ALL rooms) */}
             <div className="relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
               <div className="absolute inset-0 flex items-center justify-center">
-                {rooms.slice(0, 2).map((room, index) => (
-                  <div 
-                    key={room.id}
-                    className={`absolute w-full max-w-md transition-all duration-1000 ease-in-out ${
-                      index === currentSlide 
-                        ? 'opacity-100 translate-x-0 scale-100' 
-                        : index < currentSlide 
-                          ? 'opacity-0 -translate-x-full scale-95'
-                          : 'opacity-0 translate-x-full scale-95'
-                    }`}
-                  >
-                    <Card className="overflow-hidden shadow-2xl cursor-pointer hover:shadow-3xl transition-shadow" onClick={() => openRoomModal(room)}>
-                      <div className="relative h-56 sm:h-64">
-                        <img 
-                          src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
-                          alt={room.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{room.name}</h3>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-primary text-white">{room.price} AZN / ночь</Badge>
-                            <Badge variant="secondary" className="bg-white/20 text-white border-0">
-                              <Users className="w-3 h-3 mr-1" />
-                              {room.capacity}
-                            </Badge>
+                {allRoomImages.map((item, index) => {
+                  const room = rooms.find(r => r.id === item.roomId)
+                  return (
+                    <div 
+                      key={`${item.roomId}-${index}`}
+                      className={`absolute w-full max-w-md transition-all duration-1000 ease-in-out ${
+                        index === currentSlide 
+                          ? 'opacity-100 translate-x-0 scale-100' 
+                          : index < currentSlide 
+                            ? 'opacity-0 -translate-x-full scale-95'
+                            : 'opacity-0 translate-x-full scale-95'
+                      }`}
+                    >
+                      {/* Transparent card - no white borders */}
+                      <div 
+                        className="overflow-hidden rounded-2xl shadow-2xl cursor-pointer hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]" 
+                        onClick={() => room && openRoomModal(room)}
+                      >
+                        <div className="relative h-56 sm:h-64">
+                          <img 
+                            src={item.image || '/images/hero-bg.jpg'} 
+                            alt={item.roomName}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{item.roomName}</h3>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-primary text-white border-0">{item.price} AZN / ночь</Badge>
+                              <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                                <Users className="w-3 h-3 mr-1" />
+                                {item.capacity}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </Card>
-                  </div>
-                ))}
+                    </div>
+                  )
+                })}
               </div>
               
-              {/* Slide Indicators */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
-                {rooms.slice(0, 2).map((_, index) => (
+              {/* Slide Indicators - shows count of all images */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2 flex-wrap justify-center max-w-[200px]">
+                {allRoomImages.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentSlide ? 'bg-primary w-8' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentSlide ? 'bg-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
                     }`}
                   />
                 ))}
