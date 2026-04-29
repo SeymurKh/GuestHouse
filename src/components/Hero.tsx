@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Trees, ChevronRight, Users } from 'lucide-react'
+import { Trees, Home, Users } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { RoomImage, Room } from '@/types'
 import { useLanguage } from '@/lib/LanguageContext'
@@ -38,10 +38,10 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
               {t.hero.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8">
+              <Button asChild size="lg" className="gap-2 bg-primary hover:bg-primary/90 px-8">
                 <a href="#rooms">
+                  <Home className="w-5 h-5" />
                   {t.hero.btnRooms}
-                  <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
               <Button asChild size="lg" className="gap-2 bg-[#25D366] hover:bg-[#20BD5A] px-8">
@@ -72,8 +72,7 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                     }`}
                   >
                     <div 
-                      className="overflow-hidden rounded-2xl shadow-2xl cursor-pointer hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]" 
-                      onClick={() => room && onRoomClick(room)}
+                      className="overflow-hidden rounded-2xl shadow-2xl transition-all duration-300" 
                     >
                       <div className="relative h-56 sm:h-64">
                         <img 

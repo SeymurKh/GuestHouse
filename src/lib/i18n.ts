@@ -18,7 +18,7 @@ export const translations = {
     },
     // Hero
     hero: {
-      location: 'Азербайджан, Габала',
+      location: 'Азербайджан, Исмаиллы',
       title1: 'Добро пожаловать в',
       title2: 'уголок спокойствия',
       description: 'Оставьте суету позади и окунитесь в атмосферу тепла и уюта. Наш гостевой дом — место, где природа обнимает вас.',
@@ -67,7 +67,7 @@ export const translations = {
       phone: 'Телефон',
       email: 'Email',
       address: 'Адрес',
-      addressValue: 'Азербайджан, Габала',
+      addressValue: 'Азербайджан, Исмаиллы',
     },
     // Footer
     footer: {
@@ -123,7 +123,7 @@ export const translations = {
     },
     // Hero
     hero: {
-      location: 'Azərbaycan, Qəbələ',
+      location: 'Azərbaycan, İsmayıllı',
       title1: 'Xoş gəlmisiniz',
       title2: 'sakitlik guşəsinə',
       description: 'İstidirahanı arxada qoyun və istilik və rahatlıq atmosferinə dalın. Qonaq evimiz - təbiətin sizi qucaqladığı yer.',
@@ -172,7 +172,7 @@ export const translations = {
       phone: 'Telefon',
       email: 'Email',
       address: 'Ünvan',
-      addressValue: 'Azərbaycan, Qəbələ',
+      addressValue: 'Azərbaycan, İsmayıllı',
     },
     // Footer
     footer: {
@@ -228,7 +228,7 @@ export const translations = {
     },
     // Hero
     hero: {
-      location: 'Azerbaijan, Gabala',
+      location: 'Azerbaijan, Ismayilli',
       title1: 'Welcome to a',
       title2: 'corner of tranquility',
       description: 'Leave the hustle behind and immerse yourself in warmth and comfort. Our guest house is a place where nature embraces you.',
@@ -277,7 +277,7 @@ export const translations = {
       phone: 'Phone',
       email: 'Email',
       address: 'Address',
-      addressValue: 'Azerbaijan, Gabala',
+      addressValue: 'Azerbaijan, Ismayilli',
     },
     // Footer
     footer: {

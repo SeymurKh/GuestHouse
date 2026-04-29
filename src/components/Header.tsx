@@ -37,7 +37,7 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2">
           <Mountain className="w-8 h-8 text-primary" />
-          <span className="font-bold text-xl text-white">Guest House Gabala</span>
+          <span className="font-bold text-xl text-white">Guest House Ivanovka</span>
         </a>
         
         <nav className="hidden md:flex items-center gap-6">
