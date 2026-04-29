@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Phone, Mail, MapPin, Star } from 'lucide-react'
+import { Mail, MapPin, Star } from 'lucide-react'
 import { Review } from '@/types'
 import { useLanguage } from '@/lib/LanguageContext'
 
@@ -30,12 +30,12 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
             </p>
             
             <div className="space-y-3 mb-6">
-              <a href={`tel:${phone}`} className="flex items-center gap-3 group">
-                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                  <Phone className="w-4 h-4" />
+              <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center group-hover:bg-[#20BD5A] transition-colors">
+                  <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60">{t.contact.phone}</p>
+                  <p className="text-xs text-white/60">WhatsApp</p>
                   <p className="font-medium">{phone}</p>
                 </div>
               </a>

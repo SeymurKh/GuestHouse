@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Users, Check, Phone, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Users, Check, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Room } from '@/types'
 import { parseImages, parseLocalizedAmenities, parseLocalizedAdvantages } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
@@ -82,10 +82,10 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
             <Button 
               asChild 
               size="sm"
-              className="bg-primary hover:bg-primary/90 ml-auto text-xs sm:text-sm"
+              className="bg-[#25D366] hover:bg-[#20BD5A] ml-auto text-xs sm:text-sm"
             >
-              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
-                <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" onClick={() => onOpenChange(false)}>
+                <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
                 {t.modal.book}
               </a>
             </Button>

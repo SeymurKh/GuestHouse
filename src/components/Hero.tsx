@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Trees, Phone, ChevronRight, Users } from 'lucide-react'
+import { Trees, ChevronRight, Users } from 'lucide-react'
 import { RoomImage, Room } from '@/types'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
@@ -43,10 +43,10 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Button asChild size="lg" className="bg-white/10 hover:bg-white/20 text-white border border-white/30 px-8">
-                <a href={`tel:${phone}`}>
-                  <Phone className="w-4 h-4 mr-2" />
-                  {t.hero.btnContact}
+              <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#20BD5A] px-8">
+                <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
+                  <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 mr-2" />
+                  WhatsApp
                 </a>
               </Button>
             </div>
