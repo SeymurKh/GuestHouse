@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Mountain, Menu, X, Settings, Globe, ChevronDown } from 'lucide-react'
+import { Menu, X, Settings, Globe, ChevronDown } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useLanguage } from '@/lib/LanguageContext'
 import { languages, Language } from '@/lib/i18n'
@@ -36,7 +36,7 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/10">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2">
-          <Mountain className="w-8 h-8 text-primary" />
+          <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded" />
           <span className="font-bold text-xl text-white">Guest House Ivanovka</span>
         </a>
         
