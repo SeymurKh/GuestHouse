@@ -83,9 +83,11 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                       </div>
                       <p className="text-white/90 italic mb-4 text-sm md:text-base">&ldquo;{review.comment}&rdquo;</p>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold">
-                          {review.guestName.charAt(0)}
-                        </div>
+                        <img 
+                          src="/booking-logo.svg" 
+                          alt="Booking.com" 
+                          className="w-10 h-10 rounded"
+                        />
                         <p className="font-medium text-white">{review.guestName}</p>
                       </div>
                     </CardContent>
