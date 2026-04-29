@@ -7,6 +7,7 @@ import { Users, ArrowRight, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkle
 import { Room } from '@/types'
 import { parseImages, parseAmenities } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
+import { getLocalizedValue } from '@/lib/localize'
 
 interface RoomsProps {
   rooms: Room[]
@@ -35,7 +36,6 @@ const getAmenityIcon = (amenity: string) => {
     'Shower': <Bath className="w-4 h-4" />,
     // Azerbaijani
     'Kondisioner': <Thermometer className="w-4 h-4" />,
-    'Mini-bar': <Coffee className="w-4 h-4" />,
     'Möhtəşəm': <Flame className="w-4 h-4" />,
     'Mətbəx': <Utensils className="w-4 h-4" />,
     'Parkovka': <Car className="w-4 h-4" />,
@@ -45,7 +45,7 @@ const getAmenityIcon = (amenity: string) => {
 }
 
 export function Rooms({ rooms, onRoomClick }: RoomsProps) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   
   return (
     <section id="rooms" className="relative z-10 min-h-screen flex items-center py-16 bg-black/30 backdrop-blur-sm">
@@ -59,49 +59,54 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
         </div>
         
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
-          {rooms.slice(0, 2).map((room) => (
-            <Card 
-              key={room.id} 
-              className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95"
-              onClick={() => onRoomClick(room)}
-            >
-              <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
-                <img 
-                  src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
-                  alt={room.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-primary text-white text-sm">{room.price} {t.rooms.perNight}</Badge>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-0 text-sm">
-                      <Users className="w-3 h-3 mr-1" />
-                      {t.rooms.upTo} {room.capacity} {t.rooms.guests}
-                    </Badge>
+          {rooms.slice(0, 2).map((room) => {
+            const roomName = getLocalizedValue(room.name, lang, room.name)
+            const roomDescription = getLocalizedValue(room.description, lang, '')
+            
+            return (
+              <Card 
+                key={room.id} 
+                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95"
+                onClick={() => onRoomClick(room)}
+              >
+                <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+                  <img 
+                    src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
+                    alt={roomName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-primary text-white text-sm">{room.price} {t.rooms.perNight}</Badge>
+                      <Badge variant="secondary" className="bg-white/20 text-white border-0 text-sm">
+                        <Users className="w-3 h-3 mr-1" />
+                        {t.rooms.upTo} {room.capacity} {t.rooms.guests}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <CardHeader>
-                <CardTitle className="text-lg md:text-xl">{room.name}</CardTitle>
-                <CardDescription className="line-clamp-2 text-sm">{room.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
-                    <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
-                      {getAmenityIcon(amenity)}
-                      {amenity}
-                    </Badge>
-                  ))}
-                </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
-                  {t.rooms.details}
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl">{roomName}</CardTitle>
+                  <CardDescription className="line-clamp-2 text-sm">{roomDescription}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
+                      <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
+                        {getAmenityIcon(amenity)}
+                        {amenity}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
+                    {t.rooms.details}
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </section>

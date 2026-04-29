@@ -8,9 +8,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
-import { Trash2, Upload, Loader2 } from 'lucide-react'
+import { Trash2, Upload, Loader2, Globe } from 'lucide-react'
 import { Room } from '@/types'
 import { parseImages, parseAmenities, parseAdvantages } from '@/lib/parse'
+import { parseLocalizedStringToForm, createLocalizedString } from '@/lib/localize'
+import { languages, Language } from '@/lib/i18n'
 
 interface AdminDialogProps {
   open: boolean
@@ -21,6 +23,13 @@ interface AdminDialogProps {
   onLogin: () => void
   rooms: Room[]
   onRoomUpdate: (room: Room) => void
+}
+
+// Localized field state
+interface LocalizedField {
+  ru: string
+  az: string
+  en: string
 }
 
 export function AdminDialog({ 
@@ -35,39 +44,59 @@ export function AdminDialog({
 }: AdminDialogProps) {
   // Edit state
   const [editId, setEditId] = useState<string | null>(null)
-  const [editName, setEditName] = useState('')
+  
+  // Localized fields
+  const [editName, setEditName] = useState<LocalizedField>({ ru: '', az: '', en: '' })
+  const [editDescription, setEditDescription] = useState<LocalizedField>({ ru: '', az: '', en: '' })
+  const [editConditions, setEditConditions] = useState<LocalizedField>({ ru: '', az: '', en: '' })
+  const [editAdvantages, setEditAdvantages] = useState<LocalizedField>({ ru: '', az: '', en: '' })
+  
+  // Non-localized fields
   const [editPrice, setEditPrice] = useState(0)
   const [editCapacity, setEditCapacity] = useState(2)
-  const [editDescription, setEditDescription] = useState('')
-  const [editConditions, setEditConditions] = useState('')
-  const [editAdvantagesText, setEditAdvantagesText] = useState('')
   const [editAmenitiesText, setEditAmenitiesText] = useState('')
   const [editImages, setEditImages] = useState<string[]>([])
   const [uploadingImage, setUploadingImage] = useState(false)
   
+  // Current language tab
+  const [editLang, setEditLang] = useState<Language>('ru')
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [fileInputKey, setFileInputKey] = useState(0)
 
+  // Helper to update localized field
+  const updateLocalizedField = (
+    setter: (val: LocalizedField) => void,
+    field: LocalizedField,
+    lang: Language,
+    value: string
+  ) => {
+    setter({ ...field, [lang]: value })
+  }
+
   const startEditingRoom = (room: Room) => {
     setEditId(room.id)
-    setEditName(room.name)
+    setEditName(parseLocalizedStringToForm(room.name))
     setEditPrice(room.price)
     setEditCapacity(room.capacity)
-    setEditDescription(room.description)
-    setEditConditions(room.conditions || '')
-    setEditAdvantagesText(parseAdvantages(room.advantages).join('\n'))
+    setEditDescription(parseLocalizedStringToForm(room.description))
+    setEditConditions(parseLocalizedStringToForm(room.conditions))
+    // For advantages, join array with newlines for each language
+    const advParsed = parseLocalizedStringToForm(room.advantages)
+    setEditAdvantages(advParsed)
     setEditAmenitiesText(parseAmenities(room.amenities).join(', '))
     setEditImages(parseImages(room.images))
+    setEditLang('ru')
   }
   
   const cancelEditing = () => {
     setEditId(null)
-    setEditName('')
+    setEditName({ ru: '', az: '', en: '' })
     setEditPrice(0)
     setEditCapacity(2)
-    setEditDescription('')
-    setEditConditions('')
-    setEditAdvantagesText('')
+    setEditDescription({ ru: '', az: '', en: '' })
+    setEditConditions({ ru: '', az: '', en: '' })
+    setEditAdvantages({ ru: '', az: '', en: '' })
     setEditAmenitiesText('')
     setEditImages([])
   }
@@ -144,10 +173,12 @@ export function AdminDialog({
   const saveRoomChanges = async () => {
     if (!editId) return
     
-    const advantages = editAdvantagesText
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean)
+    // Parse advantages for each language (split by newline)
+    const advantagesArr = {
+      ru: editAdvantages.ru.split('\n').map(s => s.trim()).filter(Boolean),
+      az: editAdvantages.az.split('\n').map(s => s.trim()).filter(Boolean),
+      en: editAdvantages.en.split('\n').map(s => s.trim()).filter(Boolean),
+    }
     
     const amenities = editAmenitiesText
       .split(',')
@@ -156,12 +187,12 @@ export function AdminDialog({
     
     const roomData = {
       id: editId,
-      name: editName,
+      name: createLocalizedString(editName.ru, editName.az, editName.en),
       price: editPrice,
       capacity: editCapacity,
-      description: editDescription,
-      conditions: editConditions,
-      advantages: JSON.stringify(advantages),
+      description: createLocalizedString(editDescription.ru, editDescription.az, editDescription.en),
+      conditions: createLocalizedString(editConditions.ru, editConditions.az, editConditions.en),
+      advantages: JSON.stringify(advantagesArr),
       amenities: JSON.stringify(amenities),
       images: JSON.stringify(editImages)
     }
@@ -186,6 +217,15 @@ export function AdminDialog({
       alert('Ошибка при сохранении')
     }
   }
+
+  // Language tab button style
+  const langTabClass = (lang: Language) => `
+    px-3 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1
+    ${editLang === lang 
+      ? 'bg-primary text-white' 
+      : 'bg-muted hover:bg-muted/80'
+    }
+  `
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -230,11 +270,36 @@ export function AdminDialog({
                 <Card key={room.id} className="overflow-hidden">
                   {editId === room.id ? (
                     <CardContent className="p-4 space-y-4">
+                      {/* Language Tabs */}
+                      <div className="flex items-center gap-2 pb-2 border-b">
+                        <Globe className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Язык:</span>
+                        <div className="flex gap-1">
+                          {languages.map(l => (
+                            <button
+                              key={l.code}
+                              type="button"
+                              onClick={() => setEditLang(l.code)}
+                              className={langTabClass(l.code)}
+                            >
+                              {l.flag} {l.code.toUpperCase()}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
                       {/* Name & Price */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="edit-name">Название</Label>
-                          <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+                          <Label htmlFor="edit-name">
+                            Название 
+                            <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                          </Label>
+                          <Input 
+                            id="edit-name" 
+                            value={editName[editLang]} 
+                            onChange={(e) => updateLocalizedField(setEditName, editName, editLang, e.target.value)} 
+                          />
                         </div>
                         <div>
                           <Label htmlFor="edit-price">Цена (AZN)</Label>
@@ -250,17 +315,28 @@ export function AdminDialog({
                       
                       {/* Description */}
                       <div>
-                        <Label htmlFor="edit-description">Описание</Label>
-                        <Textarea id="edit-description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} />
+                        <Label htmlFor="edit-description">
+                          Описание
+                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                        </Label>
+                        <Textarea 
+                          id="edit-description" 
+                          value={editDescription[editLang]} 
+                          onChange={(e) => updateLocalizedField(setEditDescription, editDescription, editLang, e.target.value)} 
+                          rows={3} 
+                        />
                       </div>
                       
                       {/* Conditions */}
                       <div>
-                        <Label htmlFor="edit-conditions">Условия проживания</Label>
+                        <Label htmlFor="edit-conditions">
+                          Условия проживания
+                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                        </Label>
                         <Textarea 
                           id="edit-conditions" 
-                          value={editConditions} 
-                          onChange={(e) => setEditConditions(e.target.value)} 
+                          value={editConditions[editLang]} 
+                          onChange={(e) => updateLocalizedField(setEditConditions, editConditions, editLang, e.target.value)} 
                           rows={4} 
                           placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• Курение запрещено" 
                         />
@@ -268,11 +344,14 @@ export function AdminDialog({
                       
                       {/* Advantages */}
                       <div>
-                        <Label htmlFor="edit-advantages">Преимущества (каждое с новой строки)</Label>
+                        <Label htmlFor="edit-advantages">
+                          Преимущества (каждое с новой строки)
+                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                        </Label>
                         <Textarea 
                           id="edit-advantages" 
-                          value={editAdvantagesText} 
-                          onChange={(e) => setEditAdvantagesText(e.target.value)} 
+                          value={editAdvantages[editLang]} 
+                          onChange={(e) => updateLocalizedField(setEditAdvantages, editAdvantages, editLang, e.target.value)} 
                           rows={4}
                           placeholder="Красивый вид&#10;Тихое место&#10;Камин"
                         />
@@ -280,7 +359,7 @@ export function AdminDialog({
                       
                       {/* Amenities */}
                       <div>
-                        <Label htmlFor="edit-amenities">Удобства (через запятую)</Label>
+                        <Label htmlFor="edit-amenities">Удобства (через запятую, общий для всех языков)</Label>
                         <Input 
                           id="edit-amenities" 
                           value={editAmenitiesText} 

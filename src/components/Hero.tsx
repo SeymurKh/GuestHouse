@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Trees, Phone, ChevronRight, Users } from 'lucide-react'
 import { RoomImage, Room } from '@/types'
 import { useLanguage } from '@/lib/LanguageContext'
+import { getLocalizedValue } from '@/lib/localize'
 
 interface HeroProps {
   phone: string
@@ -16,7 +17,7 @@ interface HeroProps {
 }
 
 export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms, onRoomClick }: HeroProps) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   
   return (
     <section className="relative z-10 min-h-screen flex items-center pt-20 pb-8">
@@ -56,6 +57,8 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
             <div className="absolute inset-0 flex items-center justify-center">
               {allRoomImages.map((item, index) => {
                 const room = rooms.find(r => r.id === item.roomId)
+                const roomName = room ? getLocalizedValue(room.name, lang, item.roomName) : item.roomName
+                
                 return (
                   <div 
                     key={`${item.roomId}-${index}`}
@@ -74,12 +77,12 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                       <div className="relative h-56 sm:h-64">
                         <img 
                           src={item.image || '/images/hero-bg.jpg'} 
-                          alt={item.roomName}
+                          alt={roomName}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-4 right-4">
-                          <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{item.roomName}</h3>
+                          <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{roomName}</h3>
                           <div className="flex items-center gap-2">
                             <Badge className="bg-primary text-white border-0">{item.price} {t.hero.perNight}</Badge>
                             <Badge variant="secondary" className="bg-white/20 text-white border-0">
