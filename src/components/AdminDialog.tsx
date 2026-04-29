@@ -10,9 +10,10 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Trash2, Upload, Loader2, Globe } from 'lucide-react'
 import { Room } from '@/types'
-import { parseImages, parseAmenities, parseAdvantages } from '@/lib/parse'
-import { parseLocalizedStringToForm, createLocalizedString } from '@/lib/localize'
+import { parseImages, parseAmenities } from '@/lib/parse'
+import { parseLocalizedStringToForm, createLocalizedString, getLocalizedValue } from '@/lib/localize'
 import { languages, Language } from '@/lib/i18n'
+import { useToast } from '@/hooks/use-toast'
 
 interface AdminDialogProps {
   open: boolean
@@ -42,8 +43,11 @@ export function AdminDialog({
   rooms,
   onRoomUpdate
 }: AdminDialogProps) {
+  const { toast } = useToast()
+  
   // Edit state
   const [editId, setEditId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   
   // Localized fields
   const [editName, setEditName] = useState<LocalizedField>({ ru: '', az: '', en: '' })
@@ -81,7 +85,6 @@ export function AdminDialog({
     setEditCapacity(room.capacity)
     setEditDescription(parseLocalizedStringToForm(room.description))
     setEditConditions(parseLocalizedStringToForm(room.conditions))
-    // For advantages, join array with newlines for each language
     const advParsed = parseLocalizedStringToForm(room.advantages)
     setEditAdvantages(advParsed)
     setEditAmenitiesText(parseAmenities(room.amenities).join(', '))
@@ -117,12 +120,20 @@ export function AdminDialog({
         return data.url
       } else {
         const error = await res.json()
-        alert(error.error || 'Ошибка при загрузке')
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Ошибка при загрузке файла',
+          variant: 'destructive'
+        })
         return null
       }
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Ошибка при загрузке файла')
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка при загрузке файла',
+        variant: 'destructive'
+      })
       return null
     } finally {
       setUploadingImage(false)
@@ -172,6 +183,7 @@ export function AdminDialog({
 
   const saveRoomChanges = async () => {
     if (!editId) return
+    setSaving(true)
     
     // Parse advantages for each language (split by newline)
     const advantagesArr = {
@@ -207,14 +219,27 @@ export function AdminDialog({
         const updated = await res.json()
         onRoomUpdate(updated)
         cancelEditing()
-        alert('Сохранено успешно!')
+        toast({
+          title: 'Сохранено',
+          description: 'Данные успешно сохранены',
+        })
       } else {
         const error = await res.json()
-        alert('Ошибка: ' + (error.error || 'Не удалось сохранить'))
+        toast({
+          title: 'Ошибка',
+          description: error.error || 'Не удалось сохранить',
+          variant: 'destructive'
+        })
       }
     } catch (err) {
       console.error('Save error:', err)
-      alert('Ошибка при сохранении')
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка при сохранении',
+        variant: 'destructive'
+      })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -266,158 +291,164 @@ export function AdminDialog({
             />
             
             <div className="space-y-6 py-4">
-              {rooms.slice(0, 2).map((room) => (
-                <Card key={room.id} className="overflow-hidden">
-                  {editId === room.id ? (
-                    <CardContent className="p-4 space-y-4">
-                      {/* Language Tabs */}
-                      <div className="flex items-center gap-2 pb-2 border-b">
-                        <Globe className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Язык:</span>
-                        <div className="flex gap-1">
-                          {languages.map(l => (
-                            <button
-                              key={l.code}
-                              type="button"
-                              onClick={() => setEditLang(l.code)}
-                              className={langTabClass(l.code)}
-                            >
-                              {l.flag} {l.code.toUpperCase()}
-                            </button>
-                          ))}
+              {rooms.slice(0, 2).map((room) => {
+                // Get localized room name for display
+                const displayName = getLocalizedValue(room.name, 'ru', room.name)
+                
+                return (
+                  <Card key={room.id} className="overflow-hidden">
+                    {editId === room.id ? (
+                      <CardContent className="p-4 space-y-4">
+                        {/* Language Tabs */}
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Globe className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Язык:</span>
+                          <div className="flex gap-1">
+                            {languages.map(l => (
+                              <button
+                                key={l.code}
+                                type="button"
+                                onClick={() => setEditLang(l.code)}
+                                className={langTabClass(l.code)}
+                              >
+                                {l.flag} {l.code.toUpperCase()}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Name & Price */}
-                      <div className="grid grid-cols-2 gap-4">
+                        
+                        {/* Name & Price */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="edit-name">
+                              Название 
+                              <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                            </Label>
+                            <Input 
+                              id="edit-name" 
+                              value={editName[editLang]} 
+                              onChange={(e) => updateLocalizedField(setEditName, editName, editLang, e.target.value)} 
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-price">Цена (AZN)</Label>
+                            <Input id="edit-price" type="number" value={editPrice} onChange={(e) => setEditPrice(parseFloat(e.target.value) || 0)} />
+                          </div>
+                        </div>
+                        
+                        {/* Capacity */}
                         <div>
-                          <Label htmlFor="edit-name">
-                            Название 
+                          <Label htmlFor="edit-capacity">Вместимость (гостей)</Label>
+                          <Input id="edit-capacity" type="number" value={editCapacity} onChange={(e) => setEditCapacity(parseInt(e.target.value) || 1)} />
+                        </div>
+                        
+                        {/* Description */}
+                        <div>
+                          <Label htmlFor="edit-description">
+                            Описание
                             <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
                           </Label>
-                          <Input 
-                            id="edit-name" 
-                            value={editName[editLang]} 
-                            onChange={(e) => updateLocalizedField(setEditName, editName, editLang, e.target.value)} 
+                          <Textarea 
+                            id="edit-description" 
+                            value={editDescription[editLang]} 
+                            onChange={(e) => updateLocalizedField(setEditDescription, editDescription, editLang, e.target.value)} 
+                            rows={3} 
                           />
                         </div>
-                        <div>
-                          <Label htmlFor="edit-price">Цена (AZN)</Label>
-                          <Input id="edit-price" type="number" value={editPrice} onChange={(e) => setEditPrice(parseFloat(e.target.value) || 0)} />
-                        </div>
-                      </div>
-                      
-                      {/* Capacity */}
-                      <div>
-                        <Label htmlFor="edit-capacity">Вместимость (гостей)</Label>
-                        <Input id="edit-capacity" type="number" value={editCapacity} onChange={(e) => setEditCapacity(parseInt(e.target.value) || 1)} />
-                      </div>
-                      
-                      {/* Description */}
-                      <div>
-                        <Label htmlFor="edit-description">
-                          Описание
-                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
-                        </Label>
-                        <Textarea 
-                          id="edit-description" 
-                          value={editDescription[editLang]} 
-                          onChange={(e) => updateLocalizedField(setEditDescription, editDescription, editLang, e.target.value)} 
-                          rows={3} 
-                        />
-                      </div>
-                      
-                      {/* Conditions */}
-                      <div>
-                        <Label htmlFor="edit-conditions">
-                          Условия проживания
-                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
-                        </Label>
-                        <Textarea 
-                          id="edit-conditions" 
-                          value={editConditions[editLang]} 
-                          onChange={(e) => updateLocalizedField(setEditConditions, editConditions, editLang, e.target.value)} 
-                          rows={4} 
-                          placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• Курение запрещено" 
-                        />
-                      </div>
-                      
-                      {/* Advantages */}
-                      <div>
-                        <Label htmlFor="edit-advantages">
-                          Преимущества (каждое с новой строки)
-                          <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
-                        </Label>
-                        <Textarea 
-                          id="edit-advantages" 
-                          value={editAdvantages[editLang]} 
-                          onChange={(e) => updateLocalizedField(setEditAdvantages, editAdvantages, editLang, e.target.value)} 
-                          rows={4}
-                          placeholder="Красивый вид&#10;Тихое место&#10;Камин"
-                        />
-                      </div>
-                      
-                      {/* Amenities */}
-                      <div>
-                        <Label htmlFor="edit-amenities">Удобства (через запятую, общий для всех языков)</Label>
-                        <Input 
-                          id="edit-amenities" 
-                          value={editAmenitiesText} 
-                          onChange={(e) => setEditAmenitiesText(e.target.value)} 
-                          placeholder="Wi-Fi, Камин, ТВ, Кухня"
-                        />
-                      </div>
-                      
-                      {/* Images */}
-                      <div>
-                        <Label className="flex items-center gap-2 mb-2">
-                          Изображения
-                          <Badge variant="secondary">{editImages.length}</Badge>
-                        </Label>
                         
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          {editImages.map((img: string, i: number) => (
-                            <div key={i} className="relative group aspect-video rounded overflow-hidden border bg-muted">
-                              <img src={img} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
-                              <button
-                                onClick={() => removeImageFromEdit(i)}
-                                className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ))}
+                        {/* Conditions */}
+                        <div>
+                          <Label htmlFor="edit-conditions">
+                            Условия проживания
+                            <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                          </Label>
+                          <Textarea 
+                            id="edit-conditions" 
+                            value={editConditions[editLang]} 
+                            onChange={(e) => updateLocalizedField(setEditConditions, editConditions, editLang, e.target.value)} 
+                            rows={4} 
+                            placeholder="• Заезд: с 14:00&#10;• Выезд: до 12:00&#10;• Курение запрещено" 
+                          />
                         </div>
                         
-                        <Button variant="outline" onClick={triggerFileInput} disabled={uploadingImage}>
-                          {uploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                          Добавить фото
-                        </Button>
-                      </div>
-                      
-                      {/* Actions */}
-                      <div className="flex gap-2">
-                        <Button onClick={saveRoomChanges} className="bg-primary hover:bg-primary/90">
-                          Сохранить
-                        </Button>
-                        <Button variant="outline" onClick={cancelEditing}>
-                          Отмена
-                        </Button>
-                      </div>
-                    </CardContent>
-                  ) : (
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
+                        {/* Advantages */}
                         <div>
-                          <h3 className="font-semibold">{room.name}</h3>
-                          <p className="text-sm text-muted-foreground">{room.price} AZN / ночь • до {room.capacity} гостей</p>
+                          <Label htmlFor="edit-advantages">
+                            Преимущества (каждое с новой строки)
+                            <Badge variant="outline" className="ml-2 text-xs">{editLang.toUpperCase()}</Badge>
+                          </Label>
+                          <Textarea 
+                            id="edit-advantages" 
+                            value={editAdvantages[editLang]} 
+                            onChange={(e) => updateLocalizedField(setEditAdvantages, editAdvantages, editLang, e.target.value)} 
+                            rows={4}
+                            placeholder="Красивый вид&#10;Тихое место&#10;Камин"
+                          />
                         </div>
-                        <Button onClick={() => startEditingRoom(room)}>Редактировать</Button>
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
+                        
+                        {/* Amenities */}
+                        <div>
+                          <Label htmlFor="edit-amenities">Удобства (через запятую, общий для всех языков)</Label>
+                          <Input 
+                            id="edit-amenities" 
+                            value={editAmenitiesText} 
+                            onChange={(e) => setEditAmenitiesText(e.target.value)} 
+                            placeholder="Wi-Fi, Камин, ТВ, Кухня"
+                          />
+                        </div>
+                        
+                        {/* Images */}
+                        <div>
+                          <Label className="flex items-center gap-2 mb-2">
+                            Изображения
+                            <Badge variant="secondary">{editImages.length}</Badge>
+                          </Label>
+                          
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {editImages.map((img: string, i: number) => (
+                              <div key={i} className="relative group aspect-video rounded overflow-hidden border bg-muted">
+                                <img src={img} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
+                                <button
+                                  onClick={() => removeImageFromEdit(i)}
+                                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <Button variant="outline" onClick={triggerFileInput} disabled={uploadingImage}>
+                            {uploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                            Добавить фото
+                          </Button>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex gap-2">
+                          <Button onClick={saveRoomChanges} className="bg-primary hover:bg-primary/90" disabled={saving}>
+                            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                            Сохранить
+                          </Button>
+                          <Button variant="outline" onClick={cancelEditing} disabled={saving}>
+                            Отмена
+                          </Button>
+                        </div>
+                      </CardContent>
+                    ) : (
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold">{displayName}</h3>
+                            <p className="text-sm text-muted-foreground">{room.price} AZN / ночь • до {room.capacity} гостей</p>
+                          </div>
+                          <Button onClick={() => startEditingRoom(room)}>Редактировать</Button>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                )
+              })}
             </div>
           </>
         )}

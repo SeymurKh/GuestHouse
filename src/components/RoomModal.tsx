@@ -20,26 +20,26 @@ interface RoomModalProps {
 
 const getAmenityIcon = (amenity: string) => {
   const icons: Record<string, React.ReactNode> = {
-    'Wi-Fi': <Wifi className="w-4 h-4" />,
-    'Кондиционер': <Thermometer className="w-4 h-4" />,
-    'ТВ': <Tv className="w-4 h-4" />,
-    'Мини-бар': <Coffee className="w-4 h-4" />,
-    'Ванна': <Bath className="w-4 h-4" />,
-    'Душ': <Bath className="w-4 h-4" />,
-    'Камин': <Flame className="w-4 h-4" />,
-    'Кухня': <Utensils className="w-4 h-4" />,
-    'Парковка': <Car className="w-4 h-4" />,
-    'Сейф': <Shield className="w-4 h-4" />,
+    'Wi-Fi': <Wifi className="w-3.5 h-3.5" />,
+    'Кондиционер': <Thermometer className="w-3.5 h-3.5" />,
+    'ТВ': <Tv className="w-3.5 h-3.5" />,
+    'Мини-бар': <Coffee className="w-3.5 h-3.5" />,
+    'Ванна': <Bath className="w-3.5 h-3.5" />,
+    'Душ': <Bath className="w-3.5 h-3.5" />,
+    'Камин': <Flame className="w-3.5 h-3.5" />,
+    'Кухня': <Utensils className="w-3.5 h-3.5" />,
+    'Парковка': <Car className="w-3.5 h-3.5" />,
+    'Сейф': <Shield className="w-3.5 h-3.5" />,
     // English
-    'Air Conditioning': <Thermometer className="w-4 h-4" />,
-    'Mini-bar': <Coffee className="w-4 h-4" />,
-    'Fireplace': <Flame className="w-4 h-4" />,
-    'Kitchen': <Utensils className="w-4 h-4" />,
-    'Parking': <Car className="w-4 h-4" />,
-    'Safe': <Shield className="w-4 h-4" />,
-    'Shower': <Bath className="w-4 h-4" />,
+    'Air Conditioning': <Thermometer className="w-3.5 h-3.5" />,
+    'Mini-bar': <Coffee className="w-3.5 h-3.5" />,
+    'Fireplace': <Flame className="w-3.5 h-3.5" />,
+    'Kitchen': <Utensils className="w-3.5 h-3.5" />,
+    'Parking': <Car className="w-3.5 h-3.5" />,
+    'Safe': <Shield className="w-3.5 h-3.5" />,
+    'Shower': <Bath className="w-3.5 h-3.5" />,
   }
-  return icons[amenity] || <Sparkles className="w-4 h-4" />
+  return icons[amenity] || <Sparkles className="w-3.5 h-3.5" />
 }
 
 export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, setCurrentImageIndex }: RoomModalProps) {
@@ -52,90 +52,101 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
   const roomDescription = getLocalizedValue(room.description, lang, '')
   const roomConditions = getLocalizedValue(room.conditions, lang, '')
   const roomAdvantages = parseLocalizedAdvantages(room.advantages, lang)
+  const images = parseImages(room.images)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{roomName}</DialogTitle>
-          <DialogDescription className="flex items-center gap-3">
-            <Badge className="bg-primary text-white">{room.price} {t.hero.perNight}</Badge>
-            <Badge variant="outline"><Users className="w-3 h-3 mr-1" />{t.rooms.upTo} {room.capacity} {t.rooms.guests}</Badge>
+          <DialogTitle className="text-xl">{roomName}</DialogTitle>
+          <DialogDescription className="flex items-center gap-2">
+            <Badge className="bg-primary text-white text-xs">{room.price} {t.hero.perNight}</Badge>
+            <Badge variant="outline" className="text-xs">
+              <Users className="w-3 h-3 mr-1" />
+              {t.rooms.upTo} {room.capacity} {t.rooms.guests}
+            </Badge>
           </DialogDescription>
         </DialogHeader>
         
-        {/* Description */}
-        {roomDescription && (
-          <div>
-            <h4 className="font-semibold mb-2">{t.modal.description}</h4>
-            <p className="text-muted-foreground text-sm">{roomDescription}</p>
+        <div className="space-y-4">
+          {/* Main Image */}
+          <div className="aspect-[16/10] rounded-lg overflow-hidden bg-muted">
+            <img 
+              src={images[currentImageIndex] || '/images/hero-bg.jpg'} 
+              alt={roomName} 
+              className="w-full h-full object-cover" 
+            />
           </div>
-        )}
-        
-        {/* Conditions */}
-        {roomConditions && (
-          <div>
-            <h4 className="font-semibold mb-2">{t.modal.conditions}</h4>
-            <div className="bg-muted/50 rounded-lg p-4">
-              <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{roomConditions}</pre>
-            </div>
-          </div>
-        )}
-        
-        {/* Advantages */}
-        {roomAdvantages.length > 0 && (
-          <div>
-            <h4 className="font-semibold mb-3">{t.modal.advantages}</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {roomAdvantages.map((adv: string, i: number) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>{adv}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Amenities */}
-        <div>
-          <h4 className="font-semibold mb-3">{t.modal.amenities}</h4>
-          <div className="flex flex-wrap gap-2">
-            {parseAmenities(room.amenities).map((amenity: string, i: number) => (
-              <Badge key={i} variant="secondary" className="flex items-center gap-1">
-                {getAmenityIcon(amenity)}
-                {amenity}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        
-        {/* Images */}
-        <div>
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            {t.modal.images}
-            <Badge variant="secondary" className="text-xs">{parseImages(room.images).length}</Badge>
-          </h4>
-          <div className="aspect-video rounded-lg overflow-hidden mb-2">
-            <img src={parseImages(room.images)[currentImageIndex] || '/images/hero-bg.jpg'} alt={roomName} className="w-full h-full object-cover" />
-          </div>
-          {parseImages(room.images).length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {parseImages(room.images).map((img: string, i: number) => (
-                <button key={i} onClick={() => setCurrentImageIndex(i)} className={`w-20 h-14 rounded overflow-hidden flex-shrink-0 border-2 ${i === currentImageIndex ? 'border-primary' : 'border-transparent'}`}>
+          
+          {/* Image thumbnails */}
+          {images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {images.map((img: string, i: number) => (
+                <button 
+                  key={i} 
+                  onClick={() => setCurrentImageIndex(i)} 
+                  className={`w-16 h-12 rounded overflow-hidden flex-shrink-0 border-2 transition-colors ${i === currentImageIndex ? 'border-primary' : 'border-transparent hover:border-muted-foreground/30'}`}
+                >
                   <img src={img} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           )}
+          
+          {/* Description */}
+          {roomDescription && (
+            <div>
+              <h4 className="font-medium text-sm mb-1.5">{t.modal.description}</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">{roomDescription}</p>
+            </div>
+          )}
+          
+          {/* Advantages */}
+          {roomAdvantages.length > 0 && (
+            <div>
+              <h4 className="font-medium text-sm mb-2">{t.modal.advantages}</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {roomAdvantages.map((adv: string, i: number) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground">{adv}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Conditions */}
+          {roomConditions && (
+            <div>
+              <h4 className="font-medium text-sm mb-1.5">{t.modal.conditions}</h4>
+              <div className="bg-muted/50 rounded-lg p-3">
+                <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-sans leading-relaxed">{roomConditions}</pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Amenities */}
+          <div>
+            <h4 className="font-medium text-sm mb-2">{t.modal.amenities}</h4>
+            <div className="flex flex-wrap gap-1.5">
+              {parseAmenities(room.amenities).map((amenity: string, i: number) => (
+                <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs px-2 py-1">
+                  {getAmenityIcon(amenity)}
+                  {amenity}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          
+          {/* Book Button */}
+          <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-2">
+            <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
+              <Phone className="w-4 h-4 mr-2" />
+              {t.modal.bookPhone}
+            </a>
+          </Button>
         </div>
-        
-        <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
-          <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
-            <Phone className="w-4 h-4 mr-2" />
-            {t.modal.bookPhone}
-          </a>
-        </Button>
       </DialogContent>
     </Dialog>
   )
