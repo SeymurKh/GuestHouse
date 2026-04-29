@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Trees, ChevronRight, Users } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { RoomImage, Room } from '@/types'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
@@ -43,9 +44,9 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Button asChild size="lg" className="bg-[#25D366] hover:bg-[#20BD5A] px-8">
+              <Button asChild size="lg" className="gap-2 bg-[#25D366] hover:bg-[#20BD5A] px-8">
                 <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
-                  <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 mr-2" />
+                  <WhatsAppIcon className="w-5 h-5" />
                   WhatsApp
                 </a>
               </Button>

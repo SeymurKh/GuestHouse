@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Mountain, Menu, X, Settings, Globe, ChevronDown } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useLanguage } from '@/lib/LanguageContext'
 import { languages, Language } from '@/lib/i18n'
 
@@ -80,9 +81,9 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
             )}
           </div>
 
-          <Button asChild className="hidden sm:flex bg-[#25D366] hover:bg-[#20BD5A]">
+          <Button asChild className="hidden sm:flex gap-2 bg-[#25D366] hover:bg-[#20BD5A]">
             <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
-              <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 mr-2" />
+              <WhatsAppIcon className="w-5 h-5" />
               WhatsApp
             </a>
           </Button>
@@ -101,9 +102,9 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
             <a href="#rooms" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>{t.nav.rooms}</a>
             <a href="#gallery" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>{t.nav.gallery}</a>
             <a href="#contact" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>{t.nav.contact}</a>
-            <Button asChild className="bg-[#25D366] hover:bg-[#20BD5A] w-full">
+            <Button asChild className="gap-2 bg-[#25D366] hover:bg-[#20BD5A] w-full">
               <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer">
-                <img src="/whatsapp-logo.png" alt="WhatsApp" className="w-5 h-5 mr-2" />
+                <WhatsAppIcon className="w-5 h-5" />
                 WhatsApp
               </a>
             </Button>
