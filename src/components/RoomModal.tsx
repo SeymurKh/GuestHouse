@@ -68,29 +68,15 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[900px] lg:max-w-[1000px] max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <DialogHeader className="pb-4 border-b">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <DialogTitle className="text-2xl mb-2">{roomName}</DialogTitle>
-              <div className="flex items-center gap-3 flex-wrap">
-                <Badge className="bg-primary text-white text-sm px-3 py-1">{room.price} {t.hero.perNight}</Badge>
-                <Badge variant="outline" className="text-sm px-3 py-1">
-                  <Users className="w-4 h-4 mr-1.5" />
-                  {t.rooms.upTo} {room.capacity} {t.rooms.guests}
-                </Badge>
-              </div>
-            </div>
-            <Button 
-              asChild 
-              size="lg"
-              className="bg-primary hover:bg-primary/90 flex-shrink-0"
-            >
-              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
-                <Phone className="w-4 h-4 mr-2" />
-                {t.modal.bookPhone}
-              </a>
-            </Button>
+        {/* Header - with extra right padding to avoid close button */}
+        <DialogHeader className="pb-4 border-b pr-12">
+          <DialogTitle className="text-2xl mb-2">{roomName}</DialogTitle>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Badge className="bg-primary text-white text-sm px-3 py-1">{room.price} {t.hero.perNight}</Badge>
+            <Badge variant="outline" className="text-sm px-3 py-1">
+              <Users className="w-4 h-4 mr-1.5" />
+              {t.rooms.upTo} {room.capacity} {t.rooms.guests}
+            </Badge>
           </div>
         </DialogHeader>
         
@@ -129,14 +115,14 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
               </div>
             </div>
             
-            {/* Thumbnails - Fixed Size */}
+            {/* Thumbnails - All images in grid rows */}
             {images.length > 1 && (
               <div className="grid grid-cols-5 gap-2">
-                {images.slice(0, 5).map((img: string, i: number) => (
+                {images.map((img: string, i: number) => (
                   <button 
                     key={i} 
                     onClick={() => setCurrentImageIndex(i)} 
-                    className={`w-full h-16 rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
+                    className={`w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -208,6 +194,18 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
                 </CardContent>
               </Card>
             )}
+            
+            {/* Book Button - Moved to bottom */}
+            <Button 
+              asChild 
+              size="lg"
+              className="w-full bg-primary hover:bg-primary/90"
+            >
+              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
+                <Phone className="w-4 h-4 mr-2" />
+                {t.modal.bookPhone}
+              </a>
+            </Button>
           </div>
         </div>
       </DialogContent>
