@@ -72,7 +72,7 @@ export default function GuestHouseLanding() {
         setRooms(roomsData.slice(0, 2))
         const reviewsRes = await fetch('/api/reviews')
         const reviewsData = await reviewsRes.json()
-        setReviews(reviewsData)
+        setReviews(reviewsData.slice(0, 5))
         const settingsRes = await fetch('/api/settings')
         const settingsData = await settingsRes.json()
         if (settingsData?.phone) setPhone(settingsData.phone)
@@ -122,6 +122,17 @@ export default function GuestHouseLanding() {
   // Handle room update from admin
   const handleRoomUpdate = (updatedRoom: Room) => {
     setRooms(rooms.map(r => r.id === updatedRoom.id ? updatedRoom : r))
+  }
+
+  // Refresh reviews from server
+  const refreshReviews = async () => {
+    try {
+      const res = await fetch('/api/reviews')
+      const data = await res.json()
+      setReviews(data.slice(0, 5))
+    } catch (error) {
+      console.error('Error refreshing reviews:', error)
+    }
   }
 
   // Loading state
@@ -209,6 +220,7 @@ export default function GuestHouseLanding() {
         onLogin={handleAdminLogin}
         rooms={rooms}
         onRoomUpdate={handleRoomUpdate}
+        onReviewsUpdate={refreshReviews}
       />
 
       {/* Dynamic Scroll Indicator */}

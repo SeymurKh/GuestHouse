@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// GET - получить одобренные отзывы
-export async function GET() {
+// GET - получить одобренные отзывы (или все для админа)
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const all = searchParams.get('all') === 'true'
+    
     const reviews = await db.review.findMany({
-      where: { isApproved: true },
+      where: all ? {} : { isApproved: true },
       orderBy: { createdAt: 'desc' },
-      take: 20
+      take: all ? 10 : 20
     })
     return NextResponse.json(reviews)
   } catch (error) {
@@ -20,14 +23,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { guestName, rating, comment } = body
+    const { guestName, rating, comment, isApproved } = body
 
     const review = await db.review.create({
       data: {
         guestName,
         rating: parseInt(rating),
         comment,
-        isApproved: false // Отзыв требует модерации
+        isApproved: isApproved ?? false
       }
     })
 
@@ -38,20 +41,51 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - одобрить отзыв (для админ-панели)
+// PUT - обновить отзыв (полное редактирование)
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, isApproved } = body
+    const { id, guestName, rating, comment, isApproved } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID отзыва не указан' }, { status: 400 })
+    }
+
+    const updateData: Record<string, unknown> = {}
+    if (guestName !== undefined) updateData.guestName = guestName
+    if (rating !== undefined) updateData.rating = parseInt(rating)
+    if (comment !== undefined) updateData.comment = comment
+    if (isApproved !== undefined) updateData.isApproved = isApproved
 
     const review = await db.review.update({
       where: { id },
-      data: { isApproved }
+      data: updateData
     })
 
     return NextResponse.json(review)
   } catch (error) {
     console.error('Error updating review:', error)
     return NextResponse.json({ error: 'Ошибка при обновлении отзыва' }, { status: 500 })
+  }
+}
+
+// DELETE - удалить отзыв
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    
+    if (!id) {
+      return NextResponse.json({ error: 'ID отзыва не указан' }, { status: 400 })
+    }
+
+    await db.review.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ success: true, message: 'Отзыв удален' })
+  } catch (error) {
+    console.error('Error deleting review:', error)
+    return NextResponse.json({ error: 'Ошибка при удалении отзыва' }, { status: 500 })
   }
 }
