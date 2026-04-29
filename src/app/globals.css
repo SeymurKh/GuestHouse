@@ -129,7 +129,7 @@
 /* Smooth scrolling with snap */
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
   overflow-x: hidden;
 }
 
