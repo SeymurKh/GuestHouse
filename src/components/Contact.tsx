@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Phone, Mail, MapPin, Star } from 'lucide-react'
 import { Review } from '@/types'
+import { useLanguage } from '@/lib/LanguageContext'
 
 interface ContactProps {
   phone: string
@@ -13,6 +14,8 @@ interface ContactProps {
 }
 
 export function Contact({ phone, reviews, currentReview, setCurrentReview }: ContactProps) {
+  const { t } = useLanguage()
+  
   return (
     <section id="contact" className="relative z-10 min-h-screen flex items-center py-16 bg-primary text-white">
       <div className="container mx-auto px-4">
@@ -20,10 +23,10 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
           
           {/* Left - Contact Info */}
           <div>
-            <Badge className="mb-4 bg-white/20 text-white border-white/30">Контакты</Badge>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">Свяжитесь с нами</h2>
+            <Badge className="mb-4 bg-white/20 text-white border-white/30">{t.contact.badge}</Badge>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6">{t.contact.title}</h2>
             <p className="text-white/80 mb-6 text-sm md:text-base">
-              Готовы ответить на все ваши вопросы и помочь с выбором домика
+              {t.contact.description}
             </p>
             
             <div className="space-y-3 mb-6">
@@ -32,7 +35,7 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                   <Phone className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60">Телефон</p>
+                  <p className="text-xs text-white/60">{t.contact.phone}</p>
                   <p className="font-medium">{phone}</p>
                 </div>
               </a>
@@ -41,7 +44,7 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60">Email</p>
+                  <p className="text-xs text-white/60">{t.contact.email}</p>
                   <p className="font-medium">info@guesthouse-gabala.az</p>
                 </div>
               </a>
@@ -50,8 +53,8 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/60">Адрес</p>
-                  <p className="font-medium">Азербайджан, Габала</p>
+                  <p className="text-xs text-white/60">{t.contact.address}</p>
+                  <p className="font-medium">{t.contact.addressValue}</p>
                 </div>
               </div>
             </div>

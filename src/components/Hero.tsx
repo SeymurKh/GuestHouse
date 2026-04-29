@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Trees, Phone, ChevronRight, Users } from 'lucide-react'
 import { RoomImage, Room } from '@/types'
+import { useLanguage } from '@/lib/LanguageContext'
 
 interface HeroProps {
   phone: string
@@ -15,6 +16,8 @@ interface HeroProps {
 }
 
 export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms, onRoomClick }: HeroProps) {
+  const { t } = useLanguage()
+  
   return (
     <section className="relative z-10 min-h-screen flex items-center pt-20 pb-8">
       <div className="container mx-auto px-4 h-full">
@@ -23,27 +26,26 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
           <div className="space-y-6 lg:space-y-8">
             <Badge className="bg-primary/20 text-primary border-primary/30">
               <Trees className="w-3 h-3 mr-1" />
-              Азербайджан, Габала
+              {t.hero.location}
             </Badge>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-              Добро пожаловать в<br />
-              <span className="text-primary">уголок спокойствия</span>
+              {t.hero.title1}<br />
+              <span className="text-primary">{t.hero.title2}</span>
             </h1>
             <p className="text-base md:text-lg lg:text-xl text-white/80 max-w-lg">
-              Оставьте суету позади и окунитесь в атмосферу тепла и уюта. 
-              Наш гостевой дом — место, где природа обнимает вас.
+              {t.hero.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 px-8">
                 <a href="#rooms">
-                  Наши домики
+                  {t.hero.btnRooms}
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
               <Button asChild size="lg" className="bg-white/10 hover:bg-white/20 text-white border border-white/30 px-8">
                 <a href={`tel:${phone}`}>
                   <Phone className="w-4 h-4 mr-2" />
-                  Связаться
+                  {t.hero.btnContact}
                 </a>
               </Button>
             </div>
@@ -79,7 +81,7 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                         <div className="absolute bottom-4 left-4 right-4">
                           <h3 className="text-white text-lg sm:text-xl font-semibold mb-1">{item.roomName}</h3>
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-primary text-white border-0">{item.price} AZN / ночь</Badge>
+                            <Badge className="bg-primary text-white border-0">{item.price} {t.hero.perNight}</Badge>
                             <Badge variant="secondary" className="bg-white/20 text-white border-0">
                               <Users className="w-3 h-3 mr-1" />
                               {item.capacity}

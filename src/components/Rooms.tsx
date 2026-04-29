@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, ArrowRight, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
 import { Room } from '@/types'
 import { parseImages, parseAmenities } from '@/lib/parse'
+import { useLanguage } from '@/lib/LanguageContext'
 
 interface RoomsProps {
   rooms: Room[]
@@ -24,19 +25,36 @@ const getAmenityIcon = (amenity: string) => {
     'Кухня': <Utensils className="w-4 h-4" />,
     'Парковка': <Car className="w-4 h-4" />,
     'Сейф': <Shield className="w-4 h-4" />,
+    // English
+    'Air Conditioning': <Thermometer className="w-4 h-4" />,
+    'Mini-bar': <Coffee className="w-4 h-4" />,
+    'Fireplace': <Flame className="w-4 h-4" />,
+    'Kitchen': <Utensils className="w-4 h-4" />,
+    'Parking': <Car className="w-4 h-4" />,
+    'Safe': <Shield className="w-4 h-4" />,
+    'Shower': <Bath className="w-4 h-4" />,
+    // Azerbaijani
+    'Kondisioner': <Thermometer className="w-4 h-4" />,
+    'Mini-bar': <Coffee className="w-4 h-4" />,
+    'Möhtəşəm': <Flame className="w-4 h-4" />,
+    'Mətbəx': <Utensils className="w-4 h-4" />,
+    'Parkovka': <Car className="w-4 h-4" />,
+    'Seyf': <Shield className="w-4 h-4" />,
   }
   return icons[amenity] || <Sparkles className="w-4 h-4" />
 }
 
 export function Rooms({ rooms, onRoomClick }: RoomsProps) {
+  const { t } = useLanguage()
+  
   return (
     <section id="rooms" className="relative z-10 min-h-screen flex items-center py-16 bg-black/30 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <Badge className="mb-4">Размещение</Badge>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">Наши домики</h2>
+          <Badge className="mb-4">{t.rooms.badge}</Badge>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">{t.rooms.title}</h2>
           <p className="text-white/70 max-w-2xl mx-auto text-sm md:text-base">
-            Два уникальных домика для вашего идеального отдыха
+            {t.rooms.description}
           </p>
         </div>
         
@@ -56,10 +74,10 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-primary text-white text-sm">{room.price} AZN / ночь</Badge>
+                    <Badge className="bg-primary text-white text-sm">{room.price} {t.rooms.perNight}</Badge>
                     <Badge variant="secondary" className="bg-white/20 text-white border-0 text-sm">
                       <Users className="w-3 h-3 mr-1" />
-                      до {room.capacity} гостей
+                      {t.rooms.upTo} {room.capacity} {t.rooms.guests}
                     </Badge>
                   </div>
                 </div>
@@ -78,7 +96,7 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                   ))}
                 </div>
                 <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
-                  Подробнее
+                  {t.rooms.details}
                   <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                 </Button>
               </CardContent>

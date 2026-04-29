@@ -22,8 +22,11 @@ import { Room, Review, RoomImage } from '@/types'
 
 // Utils
 import { parseImages } from '@/lib/parse'
+import { useLanguage } from '@/lib/LanguageContext'
 
 export default function GuestHouseLanding() {
+  const { t } = useLanguage()
+  
   // State
   const [rooms, setRooms] = useState<Room[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
@@ -105,7 +108,7 @@ export default function GuestHouseLanding() {
     if (adminPassword === 'admin123') {
       setIsAdmin(true)
     } else {
-      alert('Неверный пароль')
+      alert(t.admin.wrongPassword)
     }
   }
 
@@ -127,7 +130,7 @@ export default function GuestHouseLanding() {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <Mountain className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-          <p className="text-white/70">Загрузка...</p>
+          <p className="text-white/70">{t.loading}</p>
         </div>
       </div>
     )

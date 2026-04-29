@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Users, Check, Phone, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
 import { Room } from '@/types'
 import { parseImages, parseAmenities, parseAdvantages } from '@/lib/parse'
+import { useLanguage } from '@/lib/LanguageContext'
 
 interface RoomModalProps {
   room: Room | null
@@ -28,11 +29,21 @@ const getAmenityIcon = (amenity: string) => {
     'Кухня': <Utensils className="w-4 h-4" />,
     'Парковка': <Car className="w-4 h-4" />,
     'Сейф': <Shield className="w-4 h-4" />,
+    // English
+    'Air Conditioning': <Thermometer className="w-4 h-4" />,
+    'Mini-bar': <Coffee className="w-4 h-4" />,
+    'Fireplace': <Flame className="w-4 h-4" />,
+    'Kitchen': <Utensils className="w-4 h-4" />,
+    'Parking': <Car className="w-4 h-4" />,
+    'Safe': <Shield className="w-4 h-4" />,
+    'Shower': <Bath className="w-4 h-4" />,
   }
   return icons[amenity] || <Sparkles className="w-4 h-4" />
 }
 
 export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, setCurrentImageIndex }: RoomModalProps) {
+  const { t } = useLanguage()
+  
   if (!room) return null
 
   return (
@@ -41,21 +52,21 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         <DialogHeader>
           <DialogTitle className="text-2xl">{room.name}</DialogTitle>
           <DialogDescription className="flex items-center gap-3">
-            <Badge className="bg-primary text-white">{room.price} AZN / ночь</Badge>
-            <Badge variant="outline"><Users className="w-3 h-3 mr-1" />до {room.capacity} гостей</Badge>
+            <Badge className="bg-primary text-white">{room.price} {t.hero.perNight}</Badge>
+            <Badge variant="outline"><Users className="w-3 h-3 mr-1" />{t.rooms.upTo} {room.capacity} {t.rooms.guests}</Badge>
           </DialogDescription>
         </DialogHeader>
         
         {/* Description */}
         <div>
-          <h4 className="font-semibold mb-2">Описание</h4>
+          <h4 className="font-semibold mb-2">{t.modal.description}</h4>
           <p className="text-muted-foreground text-sm">{room.description}</p>
         </div>
         
         {/* Conditions */}
         {room.conditions && (
           <div>
-            <h4 className="font-semibold mb-2">Условия проживания</h4>
+            <h4 className="font-semibold mb-2">{t.modal.conditions}</h4>
             <div className="bg-muted/50 rounded-lg p-4">
               <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans">{room.conditions}</pre>
             </div>
@@ -65,7 +76,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         {/* Advantages */}
         {parseAdvantages(room.advantages).length > 0 && (
           <div>
-            <h4 className="font-semibold mb-3">Преимущества</h4>
+            <h4 className="font-semibold mb-3">{t.modal.advantages}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {parseAdvantages(room.advantages).map((adv: string, i: number) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
@@ -79,7 +90,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         
         {/* Amenities */}
         <div>
-          <h4 className="font-semibold mb-3">Удобства</h4>
+          <h4 className="font-semibold mb-3">{t.modal.amenities}</h4>
           <div className="flex flex-wrap gap-2">
             {parseAmenities(room.amenities).map((amenity: string, i: number) => (
               <Badge key={i} variant="secondary" className="flex items-center gap-1">
@@ -93,7 +104,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         {/* Images */}
         <div>
           <h4 className="font-semibold mb-2 flex items-center gap-2">
-            Изображения
+            {t.modal.images}
             <Badge variant="secondary" className="text-xs">{parseImages(room.images).length}</Badge>
           </h4>
           <div className="aspect-video rounded-lg overflow-hidden mb-2">
@@ -113,7 +124,7 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
         <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-4">
           <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
             <Phone className="w-4 h-4 mr-2" />
-            Забронировать по телефону
+            {t.modal.bookPhone}
           </a>
         </Button>
       </DialogContent>
