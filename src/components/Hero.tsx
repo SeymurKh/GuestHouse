@@ -16,20 +16,20 @@ interface HeroProps {
 
 export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms, onRoomClick }: HeroProps) {
   return (
-    <section className="min-h-screen flex items-center pt-20 pb-8 bg-gradient-to-br from-background via-muted/30 to-background snap-start snap-always">
+    <section className="relative z-10 min-h-screen flex items-center pt-20 pb-8">
       <div className="container mx-auto px-4 h-full">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
           {/* Left Side - Welcome Text */}
           <div className="space-y-6 lg:space-y-8">
-            <Badge className="bg-primary/10 text-primary border-primary/20">
+            <Badge className="bg-primary/20 text-primary border-primary/30">
               <Trees className="w-3 h-3 mr-1" />
               Азербайджан, Габала
             </Badge>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
               Добро пожаловать в<br />
               <span className="text-primary">уголок спокойствия</span>
             </h1>
-            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-lg">
+            <p className="text-base md:text-lg lg:text-xl text-white/80 max-w-lg">
               Оставьте суету позади и окунитесь в атмосферу тепла и уюта. 
               Наш гостевой дом — место, где природа обнимает вас.
             </p>
@@ -40,7 +40,7 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-primary/20">
+              <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
                 <a href={`tel:${phone}`}>
                   <Phone className="w-4 h-4 mr-2" />
                   Связаться
@@ -100,7 +100,7 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                   key={index}
                   onClick={() => setCurrentSlide(index)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                    index === currentSlide ? 'bg-primary w-6' : 'bg-white/30 hover:bg-white/50'
                   }`}
                 />
               ))}

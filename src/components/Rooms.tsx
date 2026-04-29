@@ -30,12 +30,12 @@ const getAmenityIcon = (amenity: string) => {
 
 export function Rooms({ rooms, onRoomClick }: RoomsProps) {
   return (
-    <section id="rooms" className="min-h-screen flex items-center py-16 bg-background snap-start snap-always">
+    <section id="rooms" className="relative z-10 min-h-screen flex items-center py-16 bg-black/30 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <Badge className="mb-4">Размещение</Badge>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Наши домики</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">Наши домики</h2>
+          <p className="text-white/70 max-w-2xl mx-auto text-sm md:text-base">
             Два уникальных домика для вашего идеального отдыха
           </p>
         </div>
@@ -44,7 +44,7 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
           {rooms.slice(0, 2).map((room) => (
             <Card 
               key={room.id} 
-              className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30"
+              className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95"
               onClick={() => onRoomClick(room)}
             >
               <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">

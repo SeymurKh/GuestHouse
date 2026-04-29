@@ -14,7 +14,7 @@ interface ContactProps {
 
 export function Contact({ phone, reviews, currentReview, setCurrentReview }: ContactProps) {
   return (
-    <section id="contact" className="min-h-screen flex items-center py-16 bg-primary text-white snap-start snap-always">
+    <section id="contact" className="relative z-10 min-h-screen flex items-center py-16 bg-primary text-white">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
           

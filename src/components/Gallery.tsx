@@ -13,12 +13,12 @@ const galleryImages = [
 
 export function Gallery() {
   return (
-    <section id="gallery" className="min-h-screen flex items-center py-16 bg-muted/30 snap-start snap-always">
+    <section id="gallery" className="relative z-10 min-h-screen flex items-center py-16 bg-black/20 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <Badge className="mb-4">Галерея</Badge>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Окружающая природа</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">Окружающая природа</h2>
+          <p className="text-white/70 max-w-2xl mx-auto text-sm md:text-base">
             Горы, леса, водопады — всё это рядом с нами
           </p>
         </div>

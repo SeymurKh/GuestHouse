@@ -12,17 +12,17 @@ interface HeaderProps {
 
 export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/10">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2">
           <Mountain className="w-8 h-8 text-primary" />
-          <span className="font-bold text-xl">Guest House Gabala</span>
+          <span className="font-bold text-xl text-white">Guest House Gabala</span>
         </a>
         
         <nav className="hidden md:flex items-center gap-6">
-          <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors">Домики</a>
-          <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors">Галерея</a>
-          <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors">Контакты</a>
+          <a href="#rooms" className="text-white/70 hover:text-white transition-colors">Домики</a>
+          <a href="#gallery" className="text-white/70 hover:text-white transition-colors">Галерея</a>
+          <a href="#contact" className="text-white/70 hover:text-white transition-colors">Контакты</a>
         </nav>
         
         <div className="flex items-center gap-3">
@@ -42,11 +42,11 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
       </div>
       
       {mobileMenuOpen && (
-        <div className="md:hidden bg-background border-b p-4">
+        <div className="md:hidden bg-black/90 backdrop-blur-md border-b border-white/10 p-4">
           <nav className="flex flex-col gap-4">
-            <a href="#rooms" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Домики</a>
-            <a href="#gallery" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Галерея</a>
-            <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>Контакты</a>
+            <a href="#rooms" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Домики</a>
+            <a href="#gallery" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Галерея</a>
+            <a href="#contact" className="text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Контакты</a>
             <Button asChild className="bg-primary hover:bg-primary/90 w-full">
               <a href={`tel:${phone}`}>
                 <Phone className="w-4 h-4 mr-2" />

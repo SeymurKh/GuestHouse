@@ -125,28 +125,29 @@ export default function GuestHouseLanding() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <Mountain className="w-16 h-16 mx-auto mb-4 text-primary animate-pulse" />
-          <p className="text-muted-foreground">Загрузка...</p>
+          <p className="text-white/70">Загрузка...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div 
-      className="min-h-screen flex flex-col bg-background overflow-x-hidden relative"
-      style={{
-        backgroundImage: 'url(/images/hero-bg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-        backgroundBlendMode: 'overlay'
-      }}
-    >
-      {/* Semi-transparent overlay for readability */}
-      <div className="absolute inset-0 bg-background/95 pointer-events-none" />
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative">
+      {/* Fixed background image */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/images/hero-bg.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+        }}
+      />
+      {/* Dark overlay for text readability */}
+      <div className="fixed inset-0 z-0 bg-black/40" />
       
       {/* Header */}
       <Header 
