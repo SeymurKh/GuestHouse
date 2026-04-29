@@ -40,7 +40,7 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Button asChild size="lg" className="bg-white/10 hover:bg-white/20 text-white border border-white/30 px-8">
                 <a href={`tel:${phone}`}>
                   <Phone className="w-4 h-4 mr-2" />
                   Связаться

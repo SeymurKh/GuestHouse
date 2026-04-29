@@ -8,7 +8,6 @@ import { Mountain } from 'lucide-react'
 import { 
   Header, 
   Hero, 
-  Features, 
   Rooms, 
   Gallery, 
   Contact, 
@@ -166,9 +165,6 @@ export default function GuestHouseLanding() {
         rooms={rooms}
         onRoomClick={openRoomModal}
       />
-
-      {/* Features Section */}
-      <Features />
 
       {/* Rooms Section */}
       <Rooms 
