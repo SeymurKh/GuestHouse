@@ -1,7 +1,7 @@
 'use client'
 
 // Guest House Gabala - Landing Page
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -37,6 +37,37 @@ interface Review {
   rating: number
   comment: string
   createdAt: string
+}
+
+// Parse helpers - defined outside component to avoid hoisting issues
+const parseAmenities = (amenitiesStr: string | null | undefined): string[] => {
+  if (!amenitiesStr) return []
+  try {
+    const parsed = JSON.parse(amenitiesStr)
+    return Array.isArray(parsed) ? parsed : []
+  } catch { 
+    return [] 
+  }
+}
+
+const parseAdvantages = (advantagesStr: string | null | undefined): string[] => {
+  if (!advantagesStr) return []
+  try {
+    const parsed = JSON.parse(advantagesStr)
+    return Array.isArray(parsed) ? parsed : []
+  } catch { 
+    return [] 
+  }
+}
+
+const parseImages = (imagesStr: string | null | undefined): string[] => {
+  if (!imagesStr) return []
+  try {
+    const parsed = JSON.parse(imagesStr)
+    return Array.isArray(parsed) ? parsed : []
+  } catch { 
+    return [] 
+  }
 }
 
 export default function GuestHouseLanding() {
@@ -80,14 +111,17 @@ export default function GuestHouseLanding() {
   const [currentReview, setCurrentReview] = useState(0)
   
   // Collect ALL images from all rooms with room info
-  const allRoomImages = rooms.flatMap(room => 
-    parseImages(room.images).map(img => ({
-      image: img,
-      roomName: room.name,
-      price: room.price,
-      capacity: room.capacity,
-      roomId: room.id
-    }))
+  const allRoomImages = useMemo(() => 
+    rooms.flatMap(room => 
+      parseImages(room.images).map(img => ({
+        image: img,
+        roomName: room.name,
+        price: room.price,
+        capacity: room.capacity,
+        roomId: room.id
+      }))
+    ),
+    [rooms]
   )
 
   // Initialize data
@@ -145,37 +179,6 @@ export default function GuestHouseLanding() {
     setSelectedRoom(room)
     setCurrentImageIndex(0)
     setRoomModalOpen(true)
-  }
-
-  // Parse helpers - with type safety
-  const parseAmenities = (amenitiesStr: string | null | undefined): string[] => {
-    if (!amenitiesStr) return []
-    try {
-      const parsed = JSON.parse(amenitiesStr)
-      return Array.isArray(parsed) ? parsed : []
-    } catch { 
-      return [] 
-    }
-  }
-
-  const parseAdvantages = (advantagesStr: string | null | undefined): string[] => {
-    if (!advantagesStr) return []
-    try {
-      const parsed = JSON.parse(advantagesStr)
-      return Array.isArray(parsed) ? parsed : []
-    } catch { 
-      return [] 
-    }
-  }
-
-  const parseImages = (imagesStr: string | null | undefined): string[] => {
-    if (!imagesStr) return []
-    try {
-      const parsed = JSON.parse(imagesStr)
-      return Array.isArray(parsed) ? parsed : []
-    } catch { 
-      return [] 
-    }
   }
 
   // Amenity icons
