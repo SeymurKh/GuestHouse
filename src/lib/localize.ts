@@ -18,7 +18,12 @@ export function getLocalizedValue(
     try {
       const parsed = JSON.parse(value)
       if (typeof parsed === 'object' && parsed !== null) {
-        return parsed[lang] || parsed.ru || parsed.en || parsed.az || fallback
+        const langValue = parsed[lang] || parsed.ru || parsed.en || parsed.az || fallback
+        // Handle arrays - join with comma
+        if (Array.isArray(langValue)) {
+          return langValue.join(', ')
+        }
+        return String(langValue)
       }
     } catch {
       // Not JSON, return as-is
@@ -29,7 +34,12 @@ export function getLocalizedValue(
   
   // If it's an object (already parsed)
   if (typeof value === 'object') {
-    return value[lang] || value.ru || value.en || value.az || fallback
+    const langValue = value[lang] || value.ru || value.en || value.az || fallback
+    // Handle arrays - join with comma
+    if (Array.isArray(langValue)) {
+      return langValue.join(', ')
+    }
+    return String(langValue)
   }
   
   return fallback
@@ -42,6 +52,17 @@ export function createLocalizedString(
   en: string
 ): string {
   return JSON.stringify({ ru, az, en })
+}
+
+// Helper to convert value to string (handles arrays by joining with newline)
+function valueToString(val: unknown): string {
+  if (Array.isArray(val)) {
+    return val.join('\n')
+  }
+  if (typeof val === 'string') {
+    return val
+  }
+  return ''
 }
 
 // Parse localized string to object for form editing
@@ -57,9 +78,9 @@ export function parseLocalizedStringToForm(
       const parsed = JSON.parse(value)
       if (typeof parsed === 'object' && parsed !== null) {
         return {
-          ru: parsed.ru || '',
-          az: parsed.az || '',
-          en: parsed.en || '',
+          ru: valueToString(parsed.ru),
+          az: valueToString(parsed.az),
+          en: valueToString(parsed.en),
         }
       }
     } catch {
@@ -71,9 +92,9 @@ export function parseLocalizedStringToForm(
   
   if (typeof value === 'object') {
     return {
-      ru: value.ru || '',
-      az: value.az || '',
-      en: value.en || '',
+      ru: valueToString(value.ru),
+      az: valueToString(value.az),
+      en: valueToString(value.en),
     }
   }
   
