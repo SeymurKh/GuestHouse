@@ -77,6 +77,17 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
               <Users className="w-4 h-4 mr-1.5" />
               {t.rooms.upTo} {room.capacity} {t.rooms.guests}
             </Badge>
+            {/* Book Button in header */}
+            <Button 
+              asChild 
+              size="sm"
+              className="bg-primary hover:bg-primary/90 ml-auto"
+            >
+              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
+                <Phone className="w-4 h-4 mr-2" />
+                {t.modal.book}
+              </a>
+            </Button>
           </div>
         </DialogHeader>
         
@@ -194,18 +205,6 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
                 </CardContent>
               </Card>
             )}
-            
-            {/* Book Button - Moved to bottom */}
-            <Button 
-              asChild 
-              size="lg"
-              className="w-full bg-primary hover:bg-primary/90"
-            >
-              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
-                <Phone className="w-4 h-4 mr-2" />
-                {t.modal.bookPhone}
-              </a>
-            </Button>
           </div>
         </div>
       </DialogContent>

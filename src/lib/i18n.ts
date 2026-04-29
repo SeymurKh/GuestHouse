@@ -44,6 +44,7 @@ export const translations = {
       advantages: 'Преимущества',
       amenities: 'Удобства',
       images: 'Изображения',
+      book: 'Забронировать',
       bookPhone: 'Забронировать по телефону',
     },
     // Gallery
@@ -148,6 +149,7 @@ export const translations = {
       advantages: 'Üstünlüklər',
       amenities: 'Rahatlıqlar',
       images: 'Şəkillər',
+      book: 'Rezervasiya',
       bookPhone: 'Telefonla rezervasiya',
     },
     // Gallery
@@ -252,6 +254,7 @@ export const translations = {
       advantages: 'Advantages',
       amenities: 'Amenities',
       images: 'Images',
+      book: 'Book Now',
       bookPhone: 'Book by phone',
     },
     // Gallery
