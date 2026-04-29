@@ -66,10 +66,11 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
             return (
               <Card 
                 key={room.id} 
-                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95"
+                className="overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary/30 bg-white/95 flex flex-col"
                 onClick={() => onRoomClick(room)}
               >
-                <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+                {/* Image Section - Fixed Height */}
+                <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden flex-shrink-0">
                   <img 
                     src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                     alt={roomName}
@@ -86,24 +87,28 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                     </div>
                   </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-lg md:text-xl">{roomName}</CardTitle>
-                  <CardDescription className="line-clamp-2 text-sm">{roomDescription}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
-                        {getAmenityIcon(amenity)}
-                        {amenity}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Button className="w-full bg-primary hover:bg-primary/90 group/btn">
-                    {t.rooms.details}
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
+                
+                {/* Content Section - Flexible */}
+                <div className="flex flex-col flex-1">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg md:text-xl">{roomName}</CardTitle>
+                    <CardDescription className="line-clamp-2 text-sm">{roomDescription}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col justify-between">
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {parseAmenities(room.amenities).slice(0, 4).map((amenity: string, i: number) => (
+                        <Badge key={i} variant="secondary" className="flex items-center gap-1 text-xs">
+                          {getAmenityIcon(amenity)}
+                          {amenity}
+                        </Badge>
+                      ))}
+                    </div>
+                    <Button className="w-full bg-primary hover:bg-primary/90 group/btn mt-auto">
+                      {t.rooms.details}
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardContent>
+                </div>
               </Card>
             )
           })}

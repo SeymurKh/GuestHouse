@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Users, Check, Phone, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
@@ -58,14 +58,26 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">{roomName}</DialogTitle>
-          <DialogDescription className="flex items-center gap-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="text-xl">{roomName}</DialogTitle>
+            <Button 
+              asChild 
+              size="sm"
+              className="bg-primary hover:bg-primary/90 flex-shrink-0"
+            >
+              <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
+                <Phone className="w-4 h-4 mr-1.5" />
+                {t.modal.bookPhone}
+              </a>
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge className="bg-primary text-white text-xs">{room.price} {t.hero.perNight}</Badge>
             <Badge variant="outline" className="text-xs">
               <Users className="w-3 h-3 mr-1" />
               {t.rooms.upTo} {room.capacity} {t.rooms.guests}
             </Badge>
-          </DialogDescription>
+          </div>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -138,14 +150,6 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
               ))}
             </div>
           </div>
-          
-          {/* Book Button */}
-          <Button asChild className="w-full bg-primary hover:bg-primary/90 mt-2">
-            <a href={`tel:${phone}`} onClick={() => onOpenChange(false)}>
-              <Phone className="w-4 h-4 mr-2" />
-              {t.modal.bookPhone}
-            </a>
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
