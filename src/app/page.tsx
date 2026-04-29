@@ -14,7 +14,7 @@ import {
   ChevronRight, Menu, X, Wifi, 
   Thermometer, Tv, Coffee, Bath, Shield, Sparkles, 
   Flame, Car, Utensils, Heart,
-  Settings, Check, ArrowRight, Plus, Trash2, ChevronDown, Upload, Loader2
+  Settings, Check, ArrowRight, Trash2, ChevronDown, Upload, Loader2
 } from 'lucide-react'
 
 // Types
@@ -658,24 +658,6 @@ export default function GuestHouseLanding() {
                   </div>
                 </div>
               </div>
-              
-              <Card className="bg-white/10 border-white/20 backdrop-blur">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-lg">Быстрая заявка</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-3" onSubmit={(e) => {
-                    e.preventDefault()
-                    alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
-                  }}>
-                    <Input placeholder="Ваше имя" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-10" />
-                    <Input placeholder="Телефон" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-10" />
-                    <Button type="submit" className="w-full bg-white text-primary hover:bg-white/90">
-                      Отправить
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
             </div>
             
             {/* Right - Floating Reviews */}
