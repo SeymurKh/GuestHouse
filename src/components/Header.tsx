@@ -1,12 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useLanguage } from '@/lib/LanguageContext'
-import { languages, Language } from '@/lib/i18n'
+import { languages } from '@/lib/i18n'
 
 interface HeaderProps {
   phone: string
@@ -16,21 +16,6 @@ interface HeaderProps {
 
 export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps) {
   const { lang, setLang, t } = useLanguage()
-  const [langMenuOpen, setLangMenuOpen] = useState(false)
-  const langMenuRef = useRef<HTMLDivElement>(null)
-
-  // Close language menu on outside click
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
-        setLangMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const currentLang = languages.find(l => l.code === lang)
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/10">
@@ -47,37 +32,22 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps
         </nav>
         
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Language Switcher */}
-          <div className="relative" ref={langMenuRef}>
-            <button
-              onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="w-8 h-8 rounded-md bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center text-lg"
-              title={currentLang?.name}
-            >
-              {currentLang?.flag}
-            </button>
-            
-            {langMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/20 overflow-hidden flex">
-                {languages.map((l) => (
-                  <button
-                    key={l.code}
-                    onClick={() => {
-                      setLang(l.code)
-                      setLangMenuOpen(false)
-                    }}
-                    title={l.name}
-                    className={`w-10 h-9 flex items-center justify-center text-lg transition-colors ${
-                      lang === l.code 
-                        ? 'bg-primary' 
-                        : 'hover:bg-white/10'
-                    }`}
-                  >
-                    {l.flag}
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Language Flags */}
+          <div className="flex items-center gap-1">
+            {languages.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                title={l.name}
+                className={`w-7 h-7 rounded flex items-center justify-center text-base transition-all ${
+                  lang === l.code 
+                    ? 'bg-primary/30 ring-1 ring-primary' 
+                    : 'hover:bg-white/10'
+                }`}
+              >
+                {l.flag}
+              </button>
+            ))}
           </div>
 
           <Button asChild className="hidden sm:flex gap-2 bg-[#25D366] hover:bg-[#20BD5A]">
