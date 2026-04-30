@@ -46,6 +46,7 @@ export default function GuestHouseLanding() {
   // Admin state
   const [adminOpen, setAdminOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
+  const [adminToken, setAdminToken] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   
   // Slider state
@@ -129,12 +130,15 @@ export default function GuestHouseLanding() {
       
       if (data.success) {
         setIsAdmin(true)
+        setAdminToken(data.token ?? adminPassword)
         toast({
           title: 'Success',
           description: 'Admin access granted',
           duration: 2000,
         })
       } else {
+        setIsAdmin(false)
+        setAdminToken(null)
         toast({
           title: 'Error',
           description: t.admin.wrongPassword,
@@ -143,6 +147,8 @@ export default function GuestHouseLanding() {
         })
       }
     } catch (error) {
+      setIsAdmin(false)
+      setAdminToken(null)
       toast({
         title: 'Error',
         description: 'Authorization error',
@@ -254,6 +260,7 @@ export default function GuestHouseLanding() {
         open={adminOpen}
         onOpenChange={setAdminOpen}
         isAdmin={isAdmin}
+        adminToken={adminToken}
         adminPassword={adminPassword}
         setAdminPassword={setAdminPassword}
         onLogin={handleAdminLogin}

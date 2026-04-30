@@ -20,6 +20,7 @@ interface AdminDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   isAdmin: boolean
+  adminToken?: string | null
   adminPassword: string
   setAdminPassword: (password: string) => void
   onLogin: () => void
@@ -42,6 +43,7 @@ export function AdminDialog({
   open, 
   onOpenChange, 
   isAdmin, 
+  adminToken,
   adminPassword, 
   setAdminPassword, 
   onLogin,
@@ -50,6 +52,7 @@ export function AdminDialog({
   onReviewsUpdate
 }: AdminDialogProps) {
   const { toast } = useToast()
+  const authHeaders: Record<string, string> = adminToken ? { 'x-admin-token': adminToken } : {}
   
   // Tab state
   const [activeTab, setActiveTab] = useState<AdminTab>('rooms')
@@ -89,7 +92,9 @@ export function AdminDialog({
   const fetchReviews = async () => {
     setLoadingReviews(true)
     try {
-      const res = await fetch('/api/reviews?all=true')
+      const res = await fetch('/api/reviews?all=true', {
+        headers: authHeaders
+      })
       const data = await res.json()
       setReviews(data.slice(0, 5)) // Max 5 reviews
     } catch {
@@ -150,6 +155,7 @@ export function AdminDialog({
       
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: authHeaders,
         body: formData
       })
       
@@ -184,7 +190,8 @@ export function AdminDialog({
     
     try {
       const res = await fetch(`/api/upload?url=${encodeURIComponent(imageUrl)}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: authHeaders
       })
       return res.ok
     } catch {
@@ -250,7 +257,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/rooms', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(roomData)
       })
       if (res.ok) {
@@ -303,7 +310,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/reviews', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           id: editingReviewId,
           guestName: editReviewName,
@@ -345,7 +352,8 @@ export function AdminDialog({
     
     try {
       const res = await fetch(`/api/reviews?id=${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: authHeaders
       })
       
       if (res.ok) {
@@ -370,7 +378,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           guestName: 'Новый гость',
           rating: 5,

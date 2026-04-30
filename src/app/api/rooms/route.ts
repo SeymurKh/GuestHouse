@@ -111,7 +111,7 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
 })
 
 // DELETE - удалить домик (requires admin auth)
-export async function DELETE(request: NextRequest) {
+export const DELETE = withAdminAuth(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -129,4 +129,4 @@ export async function DELETE(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Ошибка при удалении домика' }, { status: 500 })
   }
-}
+})

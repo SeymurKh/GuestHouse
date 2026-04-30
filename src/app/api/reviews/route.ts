@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { withAdminAuth, validateInput, sanitize } from '@/lib/middleware'
+import { withAdminAuth, validateInput, sanitize, getAuthTokenFromRequest, verifyAdminToken } from '@/lib/middleware'
 
 // GET - получить одобренные отзывы (или все для админа)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const all = searchParams.get('all') === 'true'
-    
+    const token = getAuthTokenFromRequest(request)
+
+    if (all && !verifyAdminToken(token)) {
+      return NextResponse.json({ error: 'Unauthorized - Admin token required' }, { status: 401 })
+    }
+
     const reviews = await db.review.findMany({
       where: all ? {} : { isApproved: true },
       orderBy: { createdAt: 'desc' },
@@ -24,6 +29,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { guestName, rating, comment, isApproved } = body
+    const token = getAuthTokenFromRequest(request)
 
     // Validate input
     const validation = validateInput.review({ guestName, rating, comment })
@@ -32,6 +38,10 @@ export async function POST(request: NextRequest) {
         { error: validation.errors[0] },
         { status: 400 }
       )
+    }
+
+    if (isApproved === true && !verifyAdminToken(token)) {
+      return NextResponse.json({ error: 'Unauthorized - Admin token required' }, { status: 401 })
     }
 
     const review = await db.review.create({

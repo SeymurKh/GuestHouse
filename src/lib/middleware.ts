@@ -7,20 +7,33 @@ import crypto from 'crypto'
  */
 export function verifyAdminToken(token: string | null): boolean {
   const expectedToken = process.env.ADMIN_TOKEN
-  
-  if (!expectedToken || !token) {
+  const expectedPassword = process.env.ADMIN_PASSWORD
+
+  if (!token || (!expectedToken && !expectedPassword)) {
     return false
   }
-  
+
   try {
     const tokenBuffer = Buffer.from(token)
-    const expectedBuffer = Buffer.from(expectedToken)
-    
-    // Use timing-safe comparison
-    return crypto.timingSafeEqual(tokenBuffer, expectedBuffer)
+
+    if (expectedToken) {
+      const expectedBuffer = Buffer.from(expectedToken)
+      if (tokenBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(tokenBuffer, expectedBuffer)) {
+        return true
+      }
+    }
+
+    if (expectedPassword) {
+      const passwordBuffer = Buffer.from(expectedPassword)
+      if (tokenBuffer.length === passwordBuffer.length && crypto.timingSafeEqual(tokenBuffer, passwordBuffer)) {
+        return true
+      }
+    }
   } catch {
     return false
   }
+
+  return false
 }
 
 /**
@@ -32,12 +45,18 @@ export function verifyPassword(inputPassword: string, correctPassword: string): 
     const inputBuffer = Buffer.from(inputPassword)
     const correctBuffer = Buffer.from(correctPassword)
     
-    // Use timing-safe comparison
-    crypto.timingSafeEqual(inputBuffer, correctBuffer)
-    return true
+    return inputBuffer.length === correctBuffer.length && crypto.timingSafeEqual(inputBuffer, correctBuffer)
   } catch {
     return false
   }
+}
+
+export function getAuthTokenFromRequest(request: NextRequest): string | null {
+  const authHeader = request.headers.get('authorization')
+  if (authHeader?.toLowerCase().startsWith('bearer ')) {
+    return authHeader.slice(7).trim()
+  }
+  return request.headers.get('x-admin-token')
 }
 
 /**
@@ -48,7 +67,7 @@ export function withAdminAuth(
   handler: (request: NextRequest) => Promise<Response>
 ): (request: NextRequest) => Promise<Response> {
   return async (request: NextRequest) => {
-    const token = request.headers.get('x-admin-token')
+    const token = getAuthTokenFromRequest(request)
     
     if (!verifyAdminToken(token)) {
       return NextResponse.json(
