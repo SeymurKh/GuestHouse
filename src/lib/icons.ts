@@ -1,3 +1,5 @@
+'use client'
+
 import { Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
 
 /**
