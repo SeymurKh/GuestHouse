@@ -82,7 +82,8 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 448px"
                           className="object-cover"
-                          priority={index === 0}
+                          priority={index === currentSlide}
+                          loading={index === currentSlide ? "eager" : "lazy"}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-4 right-4">
