@@ -31,9 +31,10 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
         </div>
         
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
-          {rooms.slice(0, 2).map((room) => {
+          {rooms.slice(0, 2).map((room, index) => {
             const roomName = getLocalizedValue(room.name, lang, room.name)
             const roomDescription = getLocalizedValue(room.description, lang, '')
+            const isFirstRoom = index === 0
             
             return (
               <Card 
@@ -49,6 +50,8 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    priority={isFirstRoom}
+                    loading={isFirstRoom ? "eager" : "lazy"}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
