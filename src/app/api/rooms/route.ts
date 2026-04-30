@@ -24,7 +24,8 @@ export async function GET() {
       orderBy: { createdAt: 'asc' }
     })
     return NextResponse.json(rooms)
-  } catch {
+  } catch (error) {
+    console.error('[Rooms GET Error]', error)
     return NextResponse.json({ error: 'Ошибка при получении домиков' }, { status: 500 })
   }
 }
