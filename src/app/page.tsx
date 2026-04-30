@@ -114,13 +114,24 @@ export default function GuestHouseLanding() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Admin login - password from environment variable
-  const handleAdminLogin = () => {
-    const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'room0191'
-    if (adminPassword === correctPassword) {
-      setIsAdmin(true)
-    } else {
-      alert(t.admin.wrongPassword)
+  // Admin login - server-side password verification
+  const handleAdminLogin = async () => {
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword })
+      })
+      const data = await res.json()
+      
+      if (data.success) {
+        setIsAdmin(true)
+      } else {
+        alert(t.admin.wrongPassword)
+      }
+    } catch (error) {
+      console.error('Admin login error:', error)
+      alert('Ошибка авторизации')
     }
   }
 

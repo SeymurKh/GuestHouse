@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -599,10 +600,10 @@ export function AdminDialog({
                             <div className="grid grid-cols-3 gap-2 mb-3">
                               {editImages.map((img: string, i: number) => (
                                 <div key={i} className="relative group aspect-video rounded overflow-hidden border bg-muted">
-                                  <img src={img} alt={`Фото ${i + 1}`} className="w-full h-full object-cover" />
+                                  <Image src={img} alt={`Фото ${i + 1}`} fill sizes="150px" className="object-cover" />
                                   <button
                                     onClick={() => removeImageFromEdit(i)}
-                                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
                                   >
                                     <Trash2 className="w-3 h-3" />
                                   </button>

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Mail, MapPin, Star } from 'lucide-react'
@@ -84,9 +85,11 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                       </div>
                       <p className="text-white/90 italic mb-4 text-sm md:text-base">&ldquo;{review.comment}&rdquo;</p>
                       <div className="flex items-center gap-3">
-                        <img 
+                        <Image 
                           src="/booking-logo.svg" 
                           alt="Booking.com" 
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded"
                         />
                         <p className="font-medium text-white">{review.guestName}</p>

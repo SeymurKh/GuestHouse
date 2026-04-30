@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, ChevronDown } from 'lucide-react'
@@ -35,7 +36,7 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-md border-b border-white/10">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded" />
+          <Image src="/logo.png" alt="Logo" width={32} height={32} className="w-8 h-8 rounded" />
           <span className="font-bold text-xl text-white">Guest House Ivanovka</span>
         </a>
         

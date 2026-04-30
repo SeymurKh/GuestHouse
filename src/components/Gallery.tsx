@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { useLanguage } from '@/lib/LanguageContext'
 
@@ -29,7 +30,13 @@ export function Gallery() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto">
           {galleryImages.map((item, i) => (
             <div key={i} className="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
-              <img src={item.src} alt={t.gallery[item.titleKey]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <Image 
+                src={item.src} 
+                alt={t.gallery[item.titleKey]} 
+                fill
+                sizes="(max-width: 768px) 50vw, 33vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-500"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="absolute bottom-4 left-4 text-white">
                   <p className="font-medium">{t.gallery[item.titleKey]}</p>

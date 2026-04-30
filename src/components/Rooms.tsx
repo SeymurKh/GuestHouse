@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -71,10 +72,12 @@ export function Rooms({ rooms, onRoomClick }: RoomsProps) {
               >
                 {/* Image Section - Fixed Height */}
                 <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden flex-shrink-0">
-                  <img 
+                  <Image 
                     src={parseImages(room.images)[0] || '/images/hero-bg.jpg'} 
                     alt={roomName}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">

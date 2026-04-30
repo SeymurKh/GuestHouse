@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -98,10 +99,13 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
           <div className="space-y-3">
             {/* Main Image - Fixed Size */}
             <div className="relative w-full h-[220px] sm:h-[300px] lg:h-[350px] rounded-xl overflow-hidden bg-muted">
-              <img 
+              <Image 
                 src={images[currentImageIndex] || '/images/hero-bg.jpg'} 
                 alt={roomName} 
-                className="w-full h-full object-cover" 
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+                priority
               />
               
               {/* Navigation arrows */}
@@ -135,9 +139,9 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
                   <button 
                     key={i} 
                     onClick={() => setCurrentImageIndex(i)} 
-                    className={`w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
+                    className={`relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <Image src={img} alt="" fill sizes="100px" className="object-cover" />
                   </button>
                 ))}
               </div>

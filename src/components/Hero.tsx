@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Trees, Home, Users } from 'lucide-react'
@@ -75,10 +76,13 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                       className="overflow-hidden rounded-2xl shadow-2xl transition-all duration-300" 
                     >
                       <div className="relative h-56 sm:h-64">
-                        <img 
+                        <Image 
                           src={item.image || '/images/hero-bg.jpg'} 
                           alt={roomName}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 448px"
+                          className="object-cover"
+                          priority={index === 0}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-4 right-4">
