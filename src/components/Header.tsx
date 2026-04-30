@@ -39,13 +39,19 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps
                 key={l.code}
                 onClick={() => setLang(l.code)}
                 title={l.name}
-                className={`w-7 h-7 rounded flex items-center justify-center text-base transition-all ${
+                className={`w-7 h-5 rounded overflow-hidden transition-all ${
                   lang === l.code 
-                    ? 'bg-primary/30 ring-1 ring-primary' 
-                    : 'hover:bg-white/10'
+                    ? 'ring-2 ring-primary ring-offset-1 ring-offset-black' 
+                    : 'opacity-60 hover:opacity-100'
                 }`}
               >
-                {l.flag}
+                <Image 
+                  src={l.flag} 
+                  alt={l.name} 
+                  width={28} 
+                  height={20} 
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>

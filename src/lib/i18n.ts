@@ -2,9 +2,9 @@
 export type Language = 'ru' | 'az' | 'en'
 
 export const languages: { code: Language; name: string; flag: string }[] = [
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'az', name: 'Azərbaycan', flag: '🇦🇿' },
-  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'az', name: 'Azərbaycan', flag: '/flags/az.svg' },
+  { code: 'ru', name: 'Русский', flag: '/flags/ru.svg' },
+  { code: 'en', name: 'English', flag: '/flags/en.svg' },
 ]
 
 export const translations = {
