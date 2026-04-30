@@ -92,8 +92,8 @@ export function AdminDialog({
       const res = await fetch('/api/reviews?all=true')
       const data = await res.json()
       setReviews(data.slice(0, 5)) // Max 5 reviews
-    } catch (error) {
-      console.error('Error fetching reviews:', error)
+    } catch {
+      // Failed to fetch reviews
     } finally {
       setLoadingReviews(false)
     }
@@ -164,8 +164,7 @@ export function AdminDialog({
         })
         return null
       }
-    } catch (error) {
-      console.error('Upload error:', error)
+    } catch {
       toast({
         title: 'Ошибка',
         description: 'Ошибка при загрузке файла',
@@ -187,8 +186,7 @@ export function AdminDialog({
         method: 'DELETE'
       })
       return res.ok
-    } catch (error) {
-      console.error('Delete error:', error)
+    } catch {
       return false
     }
   }
@@ -270,8 +268,7 @@ export function AdminDialog({
           variant: 'destructive'
         })
       }
-    } catch (err) {
-      console.error('Save error:', err)
+    } catch {
       toast({
         title: 'Ошибка',
         description: 'Ошибка при сохранении',
@@ -331,8 +328,7 @@ export function AdminDialog({
           variant: 'destructive'
         })
       }
-    } catch (err) {
-      console.error('Save review error:', err)
+    } catch {
       toast({
         title: 'Ошибка',
         description: 'Ошибка при сохранении',
@@ -359,8 +355,7 @@ export function AdminDialog({
           description: 'Отзыв удален',
         })
       }
-    } catch (err) {
-      console.error('Delete review error:', err)
+    } catch {
       toast({
         title: 'Ошибка',
         description: 'Ошибка при удалении',
@@ -391,8 +386,7 @@ export function AdminDialog({
           description: 'Новый отзыв создан',
         })
       }
-    } catch (err) {
-      console.error('Add review error:', err)
+    } catch {
       toast({
         title: 'Ошибка',
         description: 'Ошибка при добавлении',

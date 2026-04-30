@@ -6,8 +6,7 @@ export async function GET() {
   try {
     const settings = await db.siteSettings.findFirst()
     return NextResponse.json(settings)
-  } catch (error) {
-    console.error('Error fetching settings:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при получении настроек' }, { status: 500 })
   }
 }
@@ -32,8 +31,7 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json(settings)
-  } catch (error) {
-    console.error('Error updating settings:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при обновлении настроек' }, { status: 500 })
   }
 }

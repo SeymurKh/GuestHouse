@@ -13,8 +13,7 @@ export async function GET(request: NextRequest) {
       take: all ? 10 : 20
     })
     return NextResponse.json(reviews)
-  } catch (error) {
-    console.error('Error fetching reviews:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при получении отзывов' }, { status: 500 })
   }
 }
@@ -35,8 +34,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(review, { status: 201 })
-  } catch (error) {
-    console.error('Error creating review:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при создании отзыва' }, { status: 500 })
   }
 }
@@ -63,8 +61,7 @@ export async function PUT(request: NextRequest) {
     })
 
     return NextResponse.json(review)
-  } catch (error) {
-    console.error('Error updating review:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при обновлении отзыва' }, { status: 500 })
   }
 }
@@ -84,8 +81,7 @@ export async function DELETE(request: NextRequest) {
     })
 
     return NextResponse.json({ success: true, message: 'Отзыв удален' })
-  } catch (error) {
-    console.error('Error deleting review:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при удалении отзыва' }, { status: 500 })
   }
 }

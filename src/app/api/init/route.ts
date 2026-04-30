@@ -104,8 +104,7 @@ export async function POST() {
       message: 'Данные успешно инициализированы',
       roomsCreated: rooms.count 
     })
-  } catch (error) {
-    console.error('Error initializing data:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при инициализации данных' }, { status: 500 })
   }
 }

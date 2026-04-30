@@ -40,8 +40,7 @@ export async function POST(request: NextRequest) {
       url: publicUrl,
       filename: filename 
     })
-  } catch (error) {
-    console.error('Upload error:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при загрузке файла' }, { status: 500 })
   }
 }
@@ -77,8 +76,7 @@ export async function DELETE(request: NextRequest) {
     await unlink(filepath)
     
     return NextResponse.json({ success: true, message: 'Файл удален' })
-  } catch (error) {
-    console.error('Delete error:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при удалении файла' }, { status: 500 })
   }
 }

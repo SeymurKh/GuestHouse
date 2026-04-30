@@ -4,45 +4,16 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, ArrowRight, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils } from 'lucide-react'
+import { Users, ArrowRight } from 'lucide-react'
 import { Room } from '@/types'
 import { parseImages, parseLocalizedAmenities } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
+import { getAmenityIcon } from '@/lib/icons'
 
 interface RoomsProps {
   rooms: Room[]
   onRoomClick: (room: Room) => void
-}
-
-const getAmenityIcon = (amenity: string) => {
-  const icons: Record<string, React.ReactNode> = {
-    'Wi-Fi': <Wifi className="w-4 h-4" />,
-    'Кондиционер': <Thermometer className="w-4 h-4" />,
-    'ТВ': <Tv className="w-4 h-4" />,
-    'Мини-бар': <Coffee className="w-4 h-4" />,
-    'Ванна': <Bath className="w-4 h-4" />,
-    'Душ': <Bath className="w-4 h-4" />,
-    'Камин': <Flame className="w-4 h-4" />,
-    'Кухня': <Utensils className="w-4 h-4" />,
-    'Парковка': <Car className="w-4 h-4" />,
-    'Сейф': <Shield className="w-4 h-4" />,
-    // English
-    'Air Conditioning': <Thermometer className="w-4 h-4" />,
-    'Mini-bar': <Coffee className="w-4 h-4" />,
-    'Fireplace': <Flame className="w-4 h-4" />,
-    'Kitchen': <Utensils className="w-4 h-4" />,
-    'Parking': <Car className="w-4 h-4" />,
-    'Safe': <Shield className="w-4 h-4" />,
-    'Shower': <Bath className="w-4 h-4" />,
-    // Azerbaijani
-    'Kondisioner': <Thermometer className="w-4 h-4" />,
-    'Möhtəşəm': <Flame className="w-4 h-4" />,
-    'Mətbəx': <Utensils className="w-4 h-4" />,
-    'Parkovka': <Car className="w-4 h-4" />,
-    'Seyf': <Shield className="w-4 h-4" />,
-  }
-  return icons[amenity] || <Sparkles className="w-4 h-4" />
 }
 
 export function Rooms({ rooms, onRoomClick }: RoomsProps) {

@@ -23,8 +23,7 @@ export async function GET() {
       orderBy: { createdAt: 'asc' }
     })
     return NextResponse.json(rooms)
-  } catch (error) {
-    console.error('Error fetching rooms:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при получении домиков' }, { status: 500 })
   }
 }
@@ -49,8 +48,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(room, { status: 201 })
-  } catch (error) {
-    console.error('Error creating room:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при создании домика' }, { status: 500 })
   }
 }
@@ -83,8 +81,7 @@ export async function PUT(request: NextRequest) {
     })
 
     return NextResponse.json(room)
-  } catch (error) {
-    console.error('Error updating room:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при обновлении домика' }, { status: 500 })
   }
 }
@@ -105,8 +102,7 @@ export async function DELETE(request: NextRequest) {
     })
 
     return NextResponse.json(room)
-  } catch (error) {
-    console.error('Error deleting room:', error)
+  } catch {
     return NextResponse.json({ error: 'Ошибка при удалении домика' }, { status: 500 })
   }
 }

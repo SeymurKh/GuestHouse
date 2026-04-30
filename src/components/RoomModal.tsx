@@ -5,12 +5,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Users, Check, Wifi, Thermometer, Tv, Coffee, Bath, Shield, Sparkles, Flame, Car, Utensils, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Users, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { Room } from '@/types'
 import { parseImages, parseLocalizedAmenities, parseLocalizedAdvantages } from '@/lib/parse'
 import { useLanguage } from '@/lib/LanguageContext'
 import { getLocalizedValue } from '@/lib/localize'
+import { getAmenityIcon } from '@/lib/icons'
 
 interface RoomModalProps {
   room: Room | null
@@ -19,30 +20,6 @@ interface RoomModalProps {
   phone: string
   currentImageIndex: number
   setCurrentImageIndex: (index: number) => void
-}
-
-const getAmenityIcon = (amenity: string) => {
-  const icons: Record<string, React.ReactNode> = {
-    'Wi-Fi': <Wifi className="w-4 h-4" />,
-    'Кондиционер': <Thermometer className="w-4 h-4" />,
-    'ТВ': <Tv className="w-4 h-4" />,
-    'Мини-бар': <Coffee className="w-4 h-4" />,
-    'Ванна': <Bath className="w-4 h-4" />,
-    'Душ': <Bath className="w-4 h-4" />,
-    'Камин': <Flame className="w-4 h-4" />,
-    'Кухня': <Utensils className="w-4 h-4" />,
-    'Парковка': <Car className="w-4 h-4" />,
-    'Сейф': <Shield className="w-4 h-4" />,
-    // English
-    'Air Conditioning': <Thermometer className="w-4 h-4" />,
-    'Mini-bar': <Coffee className="w-4 h-4" />,
-    'Fireplace': <Flame className="w-4 h-4" />,
-    'Kitchen': <Utensils className="w-4 h-4" />,
-    'Parking': <Car className="w-4 h-4" />,
-    'Safe': <Shield className="w-4 h-4" />,
-    'Shower': <Bath className="w-4 h-4" />,
-  }
-  return icons[amenity] || <Sparkles className="w-4 h-4" />
 }
 
 export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, setCurrentImageIndex }: RoomModalProps) {

@@ -77,8 +77,7 @@ export default function GuestHouseLanding() {
         const settingsData = await settingsRes.json()
         if (settingsData?.phone) setPhone(settingsData.phone)
         setLoading(false)
-      } catch (error) {
-        console.error('Error initializing:', error)
+      } catch {
         setLoading(false)
       }
     }
@@ -129,8 +128,7 @@ export default function GuestHouseLanding() {
       } else {
         alert(t.admin.wrongPassword)
       }
-    } catch (error) {
-      console.error('Admin login error:', error)
+    } catch {
       alert('Ошибка авторизации')
     }
   }
@@ -153,8 +151,8 @@ export default function GuestHouseLanding() {
       const res = await fetch('/api/reviews')
       const data = await res.json()
       setReviews(data.slice(0, 5))
-    } catch (error) {
-      console.error('Error refreshing reviews:', error)
+    } catch {
+      // Failed to refresh reviews
     }
   }
 
