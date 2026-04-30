@@ -1,8 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
+  <!-- Three horizontal stripes: blue, red, green -->
   <rect width="600" height="100" fill="#0092BC"/>
   <rect y="100" width="600" height="100" fill="#E4002B"/>
   <rect y="200" width="600" height="100" fill="#00AF66"/>
-  <circle cx="300" cy="150" r="25" fill="#E4002B"/>
-  <circle cx="300" cy="150" r="20" fill="#fff"/>
-  <circle cx="300" cy="150" r="10" fill="#E4002B"/>
+  <!-- White crescent and 8-pointed star in center -->
+  <g transform="translate(300, 150)" fill="#fff">
+    <!-- Crescent -->
+    <path d="M -15,-22 A 22,22 0 1,1 -15,22 A 18,18 0 1,0 -15,-22"/>
+    <!-- 8-pointed star -->
+    <polygon points="0,-14 3,-5 12,-5 5,1 7,10 0,5 -7,10 -5,1 -12,-5 -3,-5"/>
+  </g>
 </svg>
