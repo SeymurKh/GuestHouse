@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Globe, ChevronDown } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useLanguage } from '@/lib/LanguageContext'
 import { languages, Language } from '@/lib/i18n'
@@ -51,15 +51,14 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps
           <div className="relative" ref={langMenuRef}>
             <button
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-white/10 hover:bg-white/20 transition-colors text-white text-sm"
+              className="w-8 h-8 rounded-md bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center text-lg"
+              title={currentLang?.name}
             >
-              <Globe className="w-4 h-4" />
-              <span className="hidden sm:inline">{currentLang?.flag}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${langMenuOpen ? 'rotate-180' : ''}`} />
+              {currentLang?.flag}
             </button>
             
             {langMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/20 overflow-hidden min-w-[140px]">
+              <div className="absolute right-0 top-full mt-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/20 overflow-hidden flex">
                 {languages.map((l) => (
                   <button
                     key={l.code}
@@ -67,14 +66,14 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps
                       setLang(l.code)
                       setLangMenuOpen(false)
                     }}
-                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-colors ${
+                    title={l.name}
+                    className={`w-10 h-9 flex items-center justify-center text-lg transition-colors ${
                       lang === l.code 
-                        ? 'bg-primary text-white' 
-                        : 'text-white/80 hover:bg-white/10'
+                        ? 'bg-primary' 
+                        : 'hover:bg-white/10'
                     }`}
                   >
-                    <span>{l.flag}</span>
-                    <span>{l.name}</span>
+                    {l.flag}
                   </button>
                 ))}
               </div>
