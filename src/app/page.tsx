@@ -103,9 +103,21 @@ export default function GuestHouseLanding() {
     return () => clearInterval(interval)
   }, [reviews.length])
 
-  // Admin login
+  // Secret admin access via keyboard shortcut (Ctrl+Shift+A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        setAdminOpen(true)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Admin login - password from environment variable
   const handleAdminLogin = () => {
-    if (adminPassword === 'admin123') {
+    const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'room0191'
+    if (adminPassword === correctPassword) {
       setIsAdmin(true)
     } else {
       alert(t.admin.wrongPassword)
@@ -167,7 +179,6 @@ export default function GuestHouseLanding() {
         phone={phone}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
-        onAdminClick={() => setAdminOpen(true)}
       />
 
       {/* Hero Section */}

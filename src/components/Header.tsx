@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Settings, Globe, ChevronDown } from 'lucide-react'
+import { Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/whatsapp-icon'
 import { useLanguage } from '@/lib/LanguageContext'
 import { languages, Language } from '@/lib/i18n'
@@ -11,10 +11,9 @@ interface HeaderProps {
   phone: string
   mobileMenuOpen: boolean
   setMobileMenuOpen: (open: boolean) => void
-  onAdminClick: () => void
 }
 
-export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick }: HeaderProps) {
+export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps) {
   const { lang, setLang, t } = useLanguage()
   const [langMenuOpen, setLangMenuOpen] = useState(false)
   const langMenuRef = useRef<HTMLDivElement>(null)
@@ -86,9 +85,6 @@ export function Header({ phone, mobileMenuOpen, setMobileMenuOpen, onAdminClick 
               <WhatsAppIcon className="w-5 h-5" />
               WhatsApp
             </a>
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onAdminClick} className="hidden sm:flex text-white hover:bg-white/10">
-            <Settings className="w-5 h-5" />
           </Button>
           <Button variant="ghost" size="icon" className="md:hidden text-white hover:bg-white/10" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

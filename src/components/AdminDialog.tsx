@@ -439,7 +439,7 @@ export function AdminDialog({
               />
               <Button onClick={onLogin}>Войти</Button>
             </div>
-            <p className="text-xs text-muted-foreground">Демо пароль: admin123</p>
+            <p className="text-xs text-muted-foreground">Введите пароль администратора</p>
           </>
         ) : (
           <>
