@@ -85,13 +85,6 @@ export function AdminDialog({
   const [savingReview, setSavingReview] = useState(false)
   const [loadingReviews, setLoadingReviews] = useState(false)
 
-  // Load reviews when tab changes or dialog opens
-  useEffect(() => {
-    if (open && isAdmin && activeTab === 'reviews') {
-      fetchReviews()
-    }
-  }, [open, isAdmin, activeTab])
-
   const fetchReviews = async () => {
     setLoadingReviews(true)
     try {
@@ -104,6 +97,13 @@ export function AdminDialog({
       setLoadingReviews(false)
     }
   }
+
+  // Load reviews when tab changes or dialog opens
+  useEffect(() => {
+    if (open && isAdmin && activeTab === 'reviews') {
+      fetchReviews()
+    }
+  }, [open, isAdmin, activeTab])
 
   // Helper to update localized field
   const updateLocalizedField = (

@@ -35,10 +35,14 @@ export function ScrollIndicator() {
   }, [])
 
   useEffect(() => {
+    // Initial check after mount
+    const timeoutId = setTimeout(handleScroll, 0)
     window.addEventListener('scroll', handleScroll)
-    handleScroll() // Initial check
     
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [handleScroll])
 
   // Scroll to next section
