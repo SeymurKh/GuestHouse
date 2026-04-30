@@ -106,7 +106,7 @@ export default function GuestHouseLanding() {
   // Secret admin access via keyboard shortcut (Ctrl+Shift+A)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'Ф' || e.key === 'ф')) {
         setAdminOpen(true)
       }
     }
