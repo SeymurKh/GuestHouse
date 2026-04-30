@@ -34,6 +34,7 @@ export function Gallery() {
                 src={item.src} 
                 alt={t.gallery[item.titleKey]} 
                 fill
+                loading={item.src === '/images/room-cottage.jpg' ? 'eager' : 'lazy'}
                 sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
               />
