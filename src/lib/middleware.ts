@@ -9,7 +9,7 @@ export function verifyAdminToken(token: string | null): boolean {
   const expectedToken = process.env.ADMIN_TOKEN
   const expectedPassword = process.env.ADMIN_PASSWORD
 
-  if (!token || (!expectedToken && !expectedPassword)) {
+  if (!token) {
     return false
   }
 
@@ -18,16 +18,12 @@ export function verifyAdminToken(token: string | null): boolean {
 
     if (expectedToken) {
       const expectedBuffer = Buffer.from(expectedToken)
-      if (tokenBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(tokenBuffer, expectedBuffer)) {
-        return true
-      }
+      return tokenBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(tokenBuffer, expectedBuffer)
     }
 
     if (expectedPassword) {
       const passwordBuffer = Buffer.from(expectedPassword)
-      if (tokenBuffer.length === passwordBuffer.length && crypto.timingSafeEqual(tokenBuffer, passwordBuffer)) {
-        return true
-      }
+      return tokenBuffer.length === passwordBuffer.length && crypto.timingSafeEqual(tokenBuffer, passwordBuffer)
     }
   } catch {
     return false

@@ -12,7 +12,7 @@
 ```env
 DATABASE_URL=                         # Database connection string
 ADMIN_PASSWORD=                       # Strong admin password
-ADMIN_TOKEN=                          # Secret token for admin API auth
+ADMIN_TOKEN=                          # Secret token for admin API auth (required in production)
 NODE_ENV=production|development
 ```
 

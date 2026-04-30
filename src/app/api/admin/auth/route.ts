@@ -21,6 +21,11 @@ export async function POST(request: Request) {
 
     if (verifyPassword(password, correctPassword)) {
       const token = process.env.ADMIN_TOKEN ?? null
+
+      if (process.env.NODE_ENV === 'production' && !token) {
+        return NextResponse.json({ error: 'Server configuration error - ADMIN_TOKEN is required in production' }, { status: 500 })
+      }
+
       return NextResponse.json({ success: true, token })
     }
 
