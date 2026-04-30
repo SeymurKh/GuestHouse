@@ -1,13 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
-  <!-- Three horizontal stripes: blue, red, green -->
+  <!-- Blue stripe -->
   <rect width="600" height="100" fill="#0092BC"/>
+  <!-- Red stripe -->
   <rect y="100" width="600" height="100" fill="#E4002B"/>
+  <!-- Green stripe -->
   <rect y="200" width="600" height="100" fill="#00AF66"/>
-  <!-- White crescent and 8-pointed star in center -->
-  <g transform="translate(300, 150)" fill="#fff">
-    <!-- Crescent -->
-    <path d="M -15,-22 A 22,22 0 1,1 -15,22 A 18,18 0 1,0 -15,-22"/>
-    <!-- 8-pointed star -->
-    <polygon points="0,-14 3,-5 12,-5 5,1 7,10 0,5 -7,10 -5,1 -12,-5 -3,-5"/>
-  </g>
+  
+  <!-- White crescent moon -->
+  <path d="M285 125 A 25 25 0 1 1 285 175 A 20 20 0 1 0 285 125" fill="#fff"/>
+  
+  <!-- White 8-pointed star -->
+  <polygon fill="#fff" points="350,130 354,142 366,142 356,150 360,162 350,154 340,162 344,150 334,142 346,142"/>
 </svg>
