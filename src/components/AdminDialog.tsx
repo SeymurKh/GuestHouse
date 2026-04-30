@@ -52,7 +52,7 @@ export function AdminDialog({
   onReviewsUpdate
 }: AdminDialogProps) {
   const { toast } = useToast()
-  const authHeaders: Record<string, string> = adminToken ? { 'x-admin-token': adminToken } : {}
+  const authHeaders: Record<string, string> | undefined = adminToken ? { 'x-admin-token': adminToken } : undefined
   
   // Tab state
   const [activeTab, setActiveTab] = useState<AdminTab>('rooms')
@@ -257,7 +257,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/rooms', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        headers: { 'Content-Type': 'application/json', ...(authHeaders ?? {}) },
         body: JSON.stringify(roomData)
       })
       if (res.ok) {
@@ -310,7 +310,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/reviews', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        headers: { 'Content-Type': 'application/json', ...(authHeaders ?? {}) },
         body: JSON.stringify({
           id: editingReviewId,
           guestName: editReviewName,
@@ -378,7 +378,7 @@ export function AdminDialog({
     try {
       const res = await fetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        headers: { 'Content-Type': 'application/json', ...(authHeaders ?? {}) },
         body: JSON.stringify({
           guestName: 'Новый гость',
           rating: 5,
