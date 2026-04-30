@@ -2,7 +2,7 @@
 export type Language = 'ru' | 'az' | 'en'
 
 export const languages: { code: Language; name: string; flag: string }[] = [
-  { code: 'az', name: 'Azərbaycan', flag: '/flags/az.svg' },
+  { code: 'az', name: 'Azərbaycan', flag: '/flags/az.png' },
   { code: 'ru', name: 'Русский', flag: '/flags/ru.svg' },
   { code: 'en', name: 'English', flag: '/flags/en.svg' },
 ]
