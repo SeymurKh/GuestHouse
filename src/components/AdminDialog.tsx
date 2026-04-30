@@ -102,7 +102,8 @@ export function AdminDialog({
   // Load reviews when tab changes or dialog opens
   useEffect(() => {
     if (open && isAdmin && activeTab === 'reviews') {
-      fetchReviews()
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void fetchReviews()
     }
   }, [open, isAdmin, activeTab])
 

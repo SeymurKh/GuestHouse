@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAdminAuth, validateInput, sanitize } from '@/lib/middleware'
 
 // GET - получить одобренные отзывы (или все для админа)
 export async function GET(request: NextRequest) {
@@ -24,23 +25,33 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { guestName, rating, comment, isApproved } = body
 
+    // Validate input
+    const validation = validateInput.review({ guestName, rating, comment })
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { error: validation.errors[0] },
+        { status: 400 }
+      )
+    }
+
     const review = await db.review.create({
       data: {
-        guestName,
-        rating: parseInt(rating),
-        comment,
+        guestName: sanitize.text(guestName),
+        rating: Math.min(5, Math.max(1, parseInt(String(rating)))),
+        comment: sanitize.text(comment),
         isApproved: isApproved ?? false
       }
     })
 
     return NextResponse.json(review, { status: 201 })
-  } catch {
+  } catch (error) {
+    console.error('[Review Create Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при создании отзыва' }, { status: 500 })
   }
 }
 
-// PUT - обновить отзыв (полное редактирование)
-export async function PUT(request: NextRequest) {
+// PUT - обновить отзыв (полное редактирование, requires admin auth)
+export const PUT = withAdminAuth(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const { id, guestName, rating, comment, isApproved } = body
@@ -50,9 +61,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const updateData: Record<string, unknown> = {}
-    if (guestName !== undefined) updateData.guestName = guestName
-    if (rating !== undefined) updateData.rating = parseInt(rating)
-    if (comment !== undefined) updateData.comment = comment
+    if (guestName !== undefined) updateData.guestName = sanitize.text(guestName)
+    if (rating !== undefined) updateData.rating = Math.min(5, Math.max(1, parseInt(String(rating))))
+    if (comment !== undefined) updateData.comment = sanitize.text(comment)
     if (isApproved !== undefined) updateData.isApproved = isApproved
 
     const review = await db.review.update({
@@ -61,13 +72,14 @@ export async function PUT(request: NextRequest) {
     })
 
     return NextResponse.json(review)
-  } catch {
+  } catch (error) {
+    console.error('[Review Update Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при обновлении отзыва' }, { status: 500 })
   }
-}
+})
 
-// DELETE - удалить отзыв
-export async function DELETE(request: NextRequest) {
+// DELETE - удалить отзыв (requires admin auth)
+export const DELETE = withAdminAuth(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -81,7 +93,8 @@ export async function DELETE(request: NextRequest) {
     })
 
     return NextResponse.json({ success: true, message: 'Отзыв удален' })
-  } catch {
+  } catch (error) {
+    console.error('[Review Delete Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при удалении отзыва' }, { status: 500 })
   }
-}
+})

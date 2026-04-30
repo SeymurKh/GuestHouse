@@ -23,10 +23,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return 'ru'
   })
 
-  // Sync with localStorage on mount
+  // Sync with localStorage on mount only
   useEffect(() => {
     const saved = localStorage.getItem('guesthouse-lang') as Language | null
     if (saved && ['ru', 'az', 'en'].includes(saved) && saved !== lang) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLangState(saved)
     }
   }, [])

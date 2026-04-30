@@ -17,6 +17,9 @@ import {
   ScrollIndicator
 } from '@/components'
 
+// Hooks
+import { useToast } from '@/hooks/use-toast'
+
 // Types
 import { Room, Review, RoomImage } from '@/types'
 
@@ -26,6 +29,7 @@ import { useLanguage } from '@/lib/LanguageContext'
 
 export default function GuestHouseLanding() {
   const { t } = useLanguage()
+  const { toast } = useToast()
   
   // State
   const [rooms, setRooms] = useState<Room[]>([])
@@ -125,11 +129,26 @@ export default function GuestHouseLanding() {
       
       if (data.success) {
         setIsAdmin(true)
+        toast({
+          title: 'Success',
+          description: 'Admin access granted',
+          duration: 2000,
+        })
       } else {
-        alert(t.admin.wrongPassword)
+        toast({
+          title: 'Error',
+          description: t.admin.wrongPassword,
+          variant: 'destructive',
+          duration: 3000,
+        })
       }
-    } catch {
-      alert('Ошибка авторизации')
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Authorization error',
+        variant: 'destructive',
+        duration: 3000,
+      })
     }
   }
 

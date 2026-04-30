@@ -13,6 +13,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Файл не найден' }, { status: 400 })
     }
 
+    // Validate file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB` },
+        { status: 413 }
+      )
+    }
+
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
@@ -40,7 +49,8 @@ export async function POST(request: NextRequest) {
       url: publicUrl,
       filename: filename 
     })
-  } catch {
+  } catch (error) {
+    console.error('[Upload Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при загрузке файла' }, { status: 500 })
   }
 }
@@ -76,7 +86,8 @@ export async function DELETE(request: NextRequest) {
     await unlink(filepath)
     
     return NextResponse.json({ success: true, message: 'Файл удален' })
-  } catch {
+  } catch (error) {
+    console.error('[Delete Upload Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при удалении файла' }, { status: 500 })
   }
 }
