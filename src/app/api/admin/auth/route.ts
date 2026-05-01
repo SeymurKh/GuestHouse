@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     
     const correctPassword = process.env.ADMIN_PASSWORD
     if (!correctPassword) {
-      return NextResponse.json({ error: 'Server configuration error - ADMIN_PASSWORD is not configured' }, { status: 500 })
+      console.error('[Auth Error] ADMIN_PASSWORD is not configured')
+      return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 })
     }
 
     if (!verifyPassword(password, correctPassword)) {

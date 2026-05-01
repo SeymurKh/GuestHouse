@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { verifyPassword, verifyAdminToken } from '../lib/middleware'
+import { verifyPassword, verifyAdminToken, generateAdminToken } from '../lib/middleware'
 
 describe('middleware utilities', () => {
   const originalEnv = process.env
@@ -25,9 +25,10 @@ describe('middleware utilities', () => {
     expect(verifyAdminToken('token123')).toBe(true)
   })
 
-  it('accepts ADMIN_PASSWORD when token is not provided', () => {
+  it('accepts generated admin token when ADMIN_PASSWORD is configured', () => {
     process.env.ADMIN_PASSWORD = 'supersecret'
-    expect(verifyAdminToken('supersecret')).toBe(true)
+    const token = generateAdminToken()
+    expect(verifyAdminToken(token)).toBe(true)
   })
 
   it('rejects invalid admin tokens', () => {
