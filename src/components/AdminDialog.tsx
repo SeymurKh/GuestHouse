@@ -504,7 +504,14 @@ export function AdminDialog({
                                   onClick={() => setEditLang(l.code)}
                                   className={langTabClass(l.code)}
                                 >
-                                  {l.flag} {l.code.toUpperCase()}
+                                  <Image
+                                    src={l.flag}
+                                    alt={l.name}
+                                    width={24}
+                                    height={16}
+                                    className="rounded-sm"
+                                  />
+                                  <span className="ml-2">{l.name}</span>
                                 </button>
                               ))}
                             </div>
