@@ -16,11 +16,11 @@ model Room {
   name        String
   description String   // Описание домика
   conditions  String   @default("") // Условия проживания
-  advantages  String   @default("") // Преимущества (JSON строка)
+  advantages  Json     @default("[]") // Преимущества (массив/локализованный объект)
   price       Float
   capacity    Int      // Количество гостей
-  amenities   String   // Удобства (JSON строка)
-  images      String   // URLs изображений (JSON строка)
+  amenities   Json     @default("[]") // Удобства (массив/локализованный объект)
+  images      Json     @default("[]") // URLs изображений
   isAvailable Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

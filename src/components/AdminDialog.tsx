@@ -249,9 +249,9 @@ export function AdminDialog({
       capacity: editCapacity,
       description: createLocalizedString(editDescription.ru, editDescription.az, editDescription.en),
       conditions: createLocalizedString(editConditions.ru, editConditions.az, editConditions.en),
-      advantages: JSON.stringify(advantagesArr),
-      amenities: JSON.stringify(amenitiesArr),
-      images: JSON.stringify(editImages)
+      advantages: advantagesArr,
+      amenities: amenitiesArr,
+      images: editImages
     }
     
     try {

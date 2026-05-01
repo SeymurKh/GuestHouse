@@ -5,31 +5,55 @@ import crypto from 'crypto'
  * Verify admin authentication token
  * Uses timing-safe comparison to prevent timing attacks
  */
-export function verifyAdminToken(token: string | null): boolean {
-  const expectedToken = process.env.ADMIN_TOKEN
-  const expectedPassword = process.env.ADMIN_PASSWORD
+const ADMIN_TOKEN_EXPIRY_MS = 1000 * 60 * 60 // 1 hour
 
+export function verifyAdminToken(token: string | null): boolean {
   if (!token) {
     return false
   }
 
+  const expectedStaticToken = process.env.ADMIN_TOKEN
+  const expectedPassword = process.env.ADMIN_PASSWORD
+
   try {
     const tokenBuffer = Buffer.from(token)
 
-    if (expectedToken) {
-      const expectedBuffer = Buffer.from(expectedToken)
-      return tokenBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(tokenBuffer, expectedBuffer)
+    if (expectedStaticToken) {
+      const expectedBuffer = Buffer.from(expectedStaticToken)
+      if (tokenBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(tokenBuffer, expectedBuffer)) {
+        return true
+      }
     }
 
-    if (expectedPassword) {
-      const passwordBuffer = Buffer.from(expectedPassword)
-      return tokenBuffer.length === passwordBuffer.length && crypto.timingSafeEqual(tokenBuffer, passwordBuffer)
+    if (!expectedPassword) {
+      return false
     }
+
+    const [timestampStr, signature] = token.split('.')
+    if (!timestampStr || !signature) {
+      return false
+    }
+
+    const timestamp = Number(timestampStr)
+    if (Number.isNaN(timestamp) || Date.now() - timestamp > ADMIN_TOKEN_EXPIRY_MS) {
+      return false
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', expectedPassword)
+      .update(timestampStr)
+      .digest('hex')
+
+    const signatureBuffer = Buffer.from(signature)
+    const expectedSignatureBuffer = Buffer.from(expectedSignature)
+
+    return (
+      signatureBuffer.length === expectedSignatureBuffer.length &&
+      crypto.timingSafeEqual(signatureBuffer, expectedSignatureBuffer)
+    )
   } catch {
     return false
   }
-
-  return false
 }
 
 /**
@@ -45,6 +69,13 @@ export function verifyPassword(inputPassword: string, correctPassword: string): 
   } catch {
     return false
   }
+}
+
+export function generateAdminToken(): string {
+  const secret = process.env.ADMIN_PASSWORD ?? ''
+  const timestamp = Date.now().toString()
+  const signature = crypto.createHmac('sha256', secret).update(timestamp).digest('hex')
+  return `${timestamp}.${signature}`
 }
 
 export function getAuthTokenFromRequest(request: NextRequest): string | null {
@@ -173,6 +204,18 @@ export const validateInput = {
 /**
  * Sanitization utilities
  */
+export function isValidId(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+export function sanitizeBoolean(value: unknown): boolean {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'string') {
+    return value.toLowerCase() === 'true'
+  }
+  return false
+}
+
 export const sanitize = {
   /**
    * Basic HTML/script tag removal
@@ -185,7 +228,7 @@ export const sanitize = {
       .trim()
       .replace(/<[^>]*>/g, '') // Remove HTML tags
       .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/on\w+\s*=/gi, '') // Remove event handlers
+      .replace(/on\w+\s*=\s*/gi, '') // Remove event handlers
       .slice(0, 1000) // Max length
   },
 

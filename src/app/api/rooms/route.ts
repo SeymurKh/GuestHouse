@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { withAdminAuth, validateInput, sanitize } from '@/lib/middleware'
+import { withAdminAuth, validateInput, sanitize, isValidId, sanitizeBoolean } from '@/lib/middleware'
 
-// Helper to safely stringify JSON
-function safeStringify(value: unknown): string {
+// Helper to normalize JSON-compatible room fields
+function normalizeJsonField(value: unknown): Prisma.InputJsonValue {
+  if (value === undefined || value === null) {
+    return []
+  }
+
   if (typeof value === 'string') {
-    // Already a string - check if it's valid JSON
     try {
-      JSON.parse(value)
-      return value // Already valid JSON string
+      const parsed = JSON.parse(value)
+      return parsed
     } catch {
-      return JSON.stringify([value]) // Single value, wrap in array
+      return [value]
     }
   }
-  return JSON.stringify(value || [])
+
+  return value
 }
 
 // GET - получить все домики
@@ -50,11 +55,11 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
         name: sanitize.text(name),
         description: sanitize.text(description),
         conditions: sanitize.text(conditions),
-        advantages: safeStringify(advantages),
+        advantages: normalizeJsonField(advantages),
         price: parseFloat(String(price)) || 0,
-        capacity: parseInt(String(capacity)) || 2,
-        amenities: safeStringify(amenities),
-        images: safeStringify(images),
+        capacity: parseInt(String(capacity), 10) || 2,
+        amenities: normalizeJsonField(amenities),
+        images: normalizeJsonField(images),
       }
     })
 
@@ -71,8 +76,8 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
     const body = await request.json()
     const { id, name, description, conditions, advantages, price, capacity, amenities, images, isAvailable } = body
 
-    if (!id) {
-      return NextResponse.json({ error: 'ID домика не указан' }, { status: 400 })
+    if (!isValidId(id)) {
+      return NextResponse.json({ error: 'ID домика не указан или некорректен' }, { status: 400 })
     }
 
     const updateData: Record<string, unknown> = {}
@@ -80,24 +85,33 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
     if (name !== undefined) updateData.name = sanitize.text(name)
     if (description !== undefined) updateData.description = sanitize.text(description)
     if (conditions !== undefined) updateData.conditions = sanitize.text(conditions)
-    if (advantages !== undefined) updateData.advantages = safeStringify(advantages)
+    if (advantages !== undefined) updateData.advantages = normalizeJsonField(advantages)
     if (price !== undefined) {
-      const val = parseFloat(String(price)) || 0
-      if (val < 0 || val > 100000) {
+      const val = parseFloat(String(price))
+      if (Number.isNaN(val) || val < 0 || val > 100000) {
         return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
       }
       updateData.price = val
     }
     if (capacity !== undefined) {
-      const val = parseInt(String(capacity)) || 2
-      if (val < 1 || val > 50) {
+      const val = parseInt(String(capacity), 10)
+      if (Number.isNaN(val) || val < 1 || val > 50) {
         return NextResponse.json({ error: 'Invalid capacity' }, { status: 400 })
       }
       updateData.capacity = val
     }
-    if (amenities !== undefined) updateData.amenities = safeStringify(amenities)
-    if (images !== undefined) updateData.images = safeStringify(images)
-    if (isAvailable !== undefined) updateData.isAvailable = isAvailable
+    if (amenities !== undefined) updateData.amenities = normalizeJsonField(amenities)
+    if (images !== undefined) updateData.images = normalizeJsonField(images)
+    if (isAvailable !== undefined) {
+      if (typeof isAvailable !== 'boolean') {
+        return NextResponse.json({ error: 'Поле isAvailable должно быть булевым' }, { status: 400 })
+      }
+      updateData.isAvailable = isAvailable
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'Нет данных для обновления' }, { status: 400 })
+    }
 
     const room = await db.room.update({
       where: { id },
@@ -106,6 +120,9 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json(room)
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Домик не найден' }, { status: 404 })
+    }
     console.error('[Room Update Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при обновлении домика' }, { status: 500 })
   }
@@ -117,8 +134,8 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     
-    if (!id) {
-      return NextResponse.json({ error: 'ID домика не указан' }, { status: 400 })
+    if (!isValidId(id)) {
+      return NextResponse.json({ error: 'ID домика не указан или некорректен' }, { status: 400 })
     }
 
     const room = await db.room.update({
@@ -127,7 +144,11 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
     })
 
     return NextResponse.json(room)
-  } catch {
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Домик не найден' }, { status: 404 })
+    }
+    console.error('[Room Delete Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при удалении домика' }, { status: 500 })
   }
 })

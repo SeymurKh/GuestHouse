@@ -71,18 +71,35 @@ export default function GuestHouseLanding() {
   useEffect(() => {
     async function initData() {
       try {
-        await fetch('/api/init', { method: 'POST' })
         const roomsRes = await fetch('/api/rooms')
+        if (!roomsRes.ok) {
+          throw new Error('Failed to fetch rooms')
+        }
         const roomsData = await roomsRes.json()
         setRooms(roomsData.slice(0, 2))
+
         const reviewsRes = await fetch('/api/reviews')
+        if (!reviewsRes.ok) {
+          throw new Error('Failed to fetch reviews')
+        }
         const reviewsData = await reviewsRes.json()
         setReviews(reviewsData.slice(0, 5))
+
         const settingsRes = await fetch('/api/settings')
+        if (!settingsRes.ok) {
+          throw new Error('Failed to fetch settings')
+        }
         const settingsData = await settingsRes.json()
         if (settingsData?.phone) setPhone(settingsData.phone)
-        setLoading(false)
-      } catch {
+      } catch (error) {
+        console.error('[Init Data Error]', error)
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить данные сайта',
+          variant: 'destructive',
+          duration: 3000,
+        })
+      } finally {
         setLoading(false)
       }
     }
@@ -128,9 +145,9 @@ export default function GuestHouseLanding() {
       })
       const data = await res.json()
       
-      if (data.success) {
+      if (data.success && typeof data.token === 'string' && data.token.length > 0) {
         setIsAdmin(true)
-        setAdminToken(data.token ?? adminPassword)
+        setAdminToken(data.token)
         toast({
           title: 'Success',
           description: 'Admin access granted',
@@ -141,7 +158,7 @@ export default function GuestHouseLanding() {
         setAdminToken(null)
         toast({
           title: 'Error',
-          description: t.admin.wrongPassword,
+          description: data.error || t.admin.wrongPassword,
           variant: 'destructive',
           duration: 3000,
         })

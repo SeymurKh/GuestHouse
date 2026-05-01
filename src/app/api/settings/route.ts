@@ -7,7 +7,8 @@ export async function GET() {
   try {
     const settings = await db.siteSettings.findFirst()
     return NextResponse.json(settings)
-  } catch {
+  } catch (error) {
+    console.error('[Settings GET Error]', error instanceof Error ? error.message : error)
     return NextResponse.json({ error: 'Ошибка при получении настроек' }, { status: 500 })
   }
 }

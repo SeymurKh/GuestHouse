@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { withAdminAuth, validateInput, sanitize, getAuthTokenFromRequest, verifyAdminToken } from '@/lib/middleware'
+import { withAdminAuth, validateInput, sanitize, sanitizeBoolean, getAuthTokenFromRequest, verifyAdminToken, isValidId } from '@/lib/middleware'
 
 // GET - получить одобренные отзывы (или все для админа)
 export async function GET(request: NextRequest) {
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
       take: all ? 10 : 20
     })
     return NextResponse.json(reviews)
-  } catch {
+  } catch (error) {
+    console.error('[Reviews GET Error]', error instanceof Error ? error.message : error)
     return NextResponse.json({ error: 'Ошибка при получении отзывов' }, { status: 500 })
   }
 }
@@ -40,16 +42,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (isApproved === true && !verifyAdminToken(token)) {
+    const approved = sanitizeBoolean(isApproved)
+    if (approved && !verifyAdminToken(token)) {
       return NextResponse.json({ error: 'Unauthorized - Admin token required' }, { status: 401 })
     }
 
+    const ratingValue = parseInt(String(rating), 10)
     const review = await db.review.create({
       data: {
         guestName: sanitize.text(guestName),
-        rating: Math.min(5, Math.max(1, parseInt(String(rating)))),
+        rating: Math.min(5, Math.max(1, ratingValue)),
         comment: sanitize.text(comment),
-        isApproved: isApproved ?? false
+        isApproved: approved
       }
     })
 
@@ -66,15 +70,25 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
     const body = await request.json()
     const { id, guestName, rating, comment, isApproved } = body
 
-    if (!id) {
-      return NextResponse.json({ error: 'ID отзыва не указан' }, { status: 400 })
+    if (!isValidId(id)) {
+      return NextResponse.json({ error: 'ID отзыва не указан или некорректен' }, { status: 400 })
     }
 
     const updateData: Record<string, unknown> = {}
     if (guestName !== undefined) updateData.guestName = sanitize.text(guestName)
-    if (rating !== undefined) updateData.rating = Math.min(5, Math.max(1, parseInt(String(rating))))
+    if (rating !== undefined) {
+      const ratingValue = parseInt(String(rating), 10)
+      if (Number.isNaN(ratingValue) || ratingValue < 1 || ratingValue > 5) {
+        return NextResponse.json({ error: 'Invalid rating' }, { status: 400 })
+      }
+      updateData.rating = Math.min(5, Math.max(1, ratingValue))
+    }
     if (comment !== undefined) updateData.comment = sanitize.text(comment)
-    if (isApproved !== undefined) updateData.isApproved = isApproved
+    if (isApproved !== undefined) updateData.isApproved = sanitizeBoolean(isApproved)
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'Нет данных для обновления отзыва' }, { status: 400 })
+    }
 
     const review = await db.review.update({
       where: { id },
@@ -83,6 +97,9 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json(review)
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Отзыв не найден' }, { status: 404 })
+    }
     console.error('[Review Update Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при обновлении отзыва' }, { status: 500 })
   }
@@ -94,8 +111,8 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     
-    if (!id) {
-      return NextResponse.json({ error: 'ID отзыва не указан' }, { status: 400 })
+    if (!isValidId(id)) {
+      return NextResponse.json({ error: 'ID отзыва не указан или некорректен' }, { status: 400 })
     }
 
     await db.review.delete({
@@ -104,6 +121,9 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json({ success: true, message: 'Отзыв удален' })
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: 'Отзыв не найден' }, { status: 404 })
+    }
     console.error('[Review Delete Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при удалении отзыва' }, { status: 500 })
   }

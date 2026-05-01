@@ -1,15 +1,19 @@
 // Types for Guest House application
 
+export type LocalizedValue = string | { ru?: string | string[]; az?: string | string[]; en?: string | string[] }
+
+export type JsonArrayOrObject = string | string[] | Record<string, unknown>
+
 export interface Room {
   id: string
   name: string
   description: string
   conditions: string
-  advantages: string
+  advantages: JsonArrayOrObject
   price: number
   capacity: number
-  amenities: string
-  images: string
+  amenities: JsonArrayOrObject
+  images: string[]
   isAvailable: boolean
 }
 

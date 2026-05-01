@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { withAdminAuth } from '@/lib/middleware'
 
 // Инициализация начальных данных
-export async function POST() {
+export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
     // Проверяем, есть ли уже номера
     const existingRooms = await db.room.count()
@@ -18,25 +19,25 @@ export async function POST() {
           name: 'Домик "Лесная сказка"',
           description: 'Уютный деревянный домик, расположенный в самом сердце леса. Идеально подходит для пар или небольших семей. Внутри царит теплая атмосфера благодаря натуральным материалам и камину. Из окон открывается потрясающий вид на горы и густой лес. Пробуждение под пение птиц и шум листвы станет лучшим началом вашего дня.',
           conditions: '• Заезд: с 14:00\n• Выезд: до 12:00\n• Размещение с домашними животными: по согласованию\n• Курение в доме запрещено\n• Тишина после 23:00\n• Максимальное количество гостей: 3',
-          advantages: JSON.stringify([
+          advantages: [
             'Уединенное расположение в лесу',
             'Настоящий камин для уютных вечеров',
             'Панорамные окна с видом на горы',
             'Собственная терраса с барбекю',
             'Экологичные материалы отделки',
             'Полная автономия и приватность'
-          ]),
+          ],
           price: 200,
           capacity: 3,
-          amenities: JSON.stringify(['Wi-Fi', 'Камин', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка']),
-          images: JSON.stringify(['/images/room-cottage.jpg', '/images/room-standard.jpg']),
+          amenities: ['Wi-Fi', 'Камин', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка'],
+          images: ['/images/room-cottage.jpg', '/images/room-standard.jpg'],
           isAvailable: true
         },
         {
           name: 'Домик "Горный пик"',
           description: 'Просторный премиум домик с захватывающим панорамным видом на Кавказские горы. Создан для тех, кто ценит комфорт и единение с природой. Две уютные спальни, просторная гостиная с камином и полностью оборудованная кухня. Частная терраса с джакузи станет вашим любимым местом для отдыха под звездным небом Габалы.',
           conditions: '• Заезд: с 14:00\n• Выезд: до 12:00\n• Размещение с домашними животными: по согласованию\n• Курение в доме запрещено\n• Тишина после 23:00\n• Максимальное количество гостей: 5',
-          advantages: JSON.stringify([
+          advantages: [
             'Премиум расположение с лучшими видами',
             'Частное джакузи на террасе',
             'Две просторные спальни',
@@ -44,11 +45,11 @@ export async function POST() {
             'Большой камин в гостиной',
             'Отдельный вход и частная территория',
             'Идеально для семейного отдыха'
-          ]),
+          ],
           price: 400,
           capacity: 5,
-          amenities: JSON.stringify(['Wi-Fi', 'Камин', 'Джакузи', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка', '2 спальни']),
-          images: JSON.stringify(['/images/room-family.jpg', '/images/room-cottage.jpg']),
+          amenities: ['Wi-Fi', 'Камин', 'Джакузи', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка', '2 спальни'],
+          images: ['/images/room-family.jpg', '/images/room-cottage.jpg'],
           isAvailable: true
         }
       ]
@@ -108,4 +109,4 @@ export async function POST() {
     console.error('[Init POST Error]', error)
     return NextResponse.json({ error: 'Ошибка при инициализации данных' }, { status: 500 })
   }
-}
+})

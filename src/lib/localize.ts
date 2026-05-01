@@ -2,7 +2,7 @@
 import { Language } from './i18n'
 
 // Type for localized string stored in DB
-export type LocalizedString = string | { ru?: string; az?: string; en?: string }
+export type LocalizedString = string | string[] | { ru?: string | string[]; az?: string | string[]; en?: string | string[] }
 
 // Parse localized string - returns the value for current language, or fallback
 export function getLocalizedValue(
@@ -17,7 +17,7 @@ export function getLocalizedValue(
     // Try to parse as JSON (new format)
     try {
       const parsed = JSON.parse(value)
-      if (typeof parsed === 'object' && parsed !== null) {
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
         const langValue = parsed[lang] || parsed.ru || parsed.en || parsed.az || fallback
         // Handle arrays - join with comma
         if (Array.isArray(langValue)) {
@@ -33,7 +33,7 @@ export function getLocalizedValue(
   }
   
   // If it's an object (already parsed)
-  if (typeof value === 'object') {
+  if (typeof value === 'object' && !Array.isArray(value)) {
     const langValue = value[lang] || value.ru || value.en || value.az || fallback
     // Handle arrays - join with comma
     if (Array.isArray(langValue)) {
@@ -76,7 +76,7 @@ export function parseLocalizedStringToForm(
   if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value)
-      if (typeof parsed === 'object' && parsed !== null) {
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
         return {
           ru: valueToString(parsed.ru),
           az: valueToString(parsed.az),
@@ -90,7 +90,7 @@ export function parseLocalizedStringToForm(
     return defaultVal
   }
   
-  if (typeof value === 'object') {
+  if (typeof value === 'object' && !Array.isArray(value)) {
     return {
       ru: valueToString(value.ru),
       az: valueToString(value.az),
