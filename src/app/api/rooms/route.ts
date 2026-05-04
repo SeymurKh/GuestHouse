@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { db } from '@/lib/db'
 import { withAdminAuth, validateInput, sanitize, isValidId } from '@/lib/middleware'
 
@@ -120,7 +121,7 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json(room)
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
       return NextResponse.json({ error: 'Домик не найден' }, { status: 404 })
     }
     console.error('[Room Update Error]', error instanceof Error ? error.message : 'Unknown error')
@@ -145,7 +146,7 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json(room)
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
       return NextResponse.json({ error: 'Домик не найден' }, { status: 404 })
     }
     console.error('[Room Delete Error]', error instanceof Error ? error.message : 'Unknown error')
