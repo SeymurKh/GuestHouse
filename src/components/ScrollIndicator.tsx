@@ -8,9 +8,6 @@ export function ScrollIndicator() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
 
-  // Section IDs in order (Hero has no ID, then rooms, gallery, contact)
-  const sectionIds = ['rooms', 'gallery', 'contact']
-
   const handleScroll = useCallback(() => {
     const scrollTop = window.scrollY
     const docHeight = document.documentElement.scrollHeight - window.innerHeight

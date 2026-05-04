@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Trash2, Upload, Loader2, Globe, Star, MessageSquare, Home, Plus } from 'lucide-react'
 import { Room, Review } from '@/types'
-import { parseImages, parseAmenities } from '@/lib/parse'
+import { parseImages } from '@/lib/parse'
 import { parseLocalizedStringToForm, createLocalizedString, getLocalizedValue } from '@/lib/localize'
 import { languages, Language } from '@/lib/i18n'
 import { useToast } from '@/hooks/use-toast'
@@ -40,11 +40,11 @@ interface LocalizedField {
 type AdminTab = 'rooms' | 'reviews'
 
 export function AdminDialog({ 
-  open, 
+  open,
   onOpenChange, 
   isAdmin, 
   adminToken,
-  adminPassword, 
+  adminPassword,
   setAdminPassword, 
   onLogin,
   rooms,
@@ -110,6 +110,7 @@ export function AdminDialog({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       void fetchReviews()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isAdmin, activeTab])
 
   // Helper to update localized field

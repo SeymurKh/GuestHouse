@@ -104,6 +104,7 @@ export default function GuestHouseLanding() {
       }
     }
     initData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Auto-slide effect for hero
@@ -163,7 +164,7 @@ export default function GuestHouseLanding() {
           duration: 3000,
         })
       }
-    } catch (error) {
+    } catch {
       setIsAdmin(false)
       setAdminToken(null)
       toast({

@@ -25,7 +25,7 @@ interface RoomModalProps {
 export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, setCurrentImageIndex }: RoomModalProps) {
   const { t, lang } = useLanguage()
   
-  if (!room) return null
+  if (!room || !open) return null
 
   // Get localized values
   const roomName = getLocalizedValue(room.name, lang, room.name)

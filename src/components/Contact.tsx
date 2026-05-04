@@ -65,13 +65,13 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
           {/* Right - Floating Reviews */}
           <div className="relative h-[400px] lg:h-[500px]">
             <div className="absolute inset-0 flex items-center justify-center">
-              {reviews.map((review, index) => (
+              {reviews.map((review, reviewIndex) => (
                 <div
                   key={review.id}
                   className={`absolute w-full max-w-sm transition-all duration-700 ease-in-out ${
-                    index === currentReview 
+                    reviewIndex === currentReview 
                       ? 'opacity-100 scale-100 translate-y-0' 
-                      : index < currentReview 
+                      : reviewIndex < currentReview 
                         ? 'opacity-0 scale-90 -translate-y-10'
                         : 'opacity-0 scale-90 translate-y-10'
                   }`}

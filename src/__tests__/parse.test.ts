@@ -6,7 +6,6 @@ import {
   parseAdvantages,
   parseLocalizedAdvantages,
 } from '../lib/parse'
-import { type Language } from '../lib/i18n'
 
 describe('parse utilities', () => {
   it('parses images from JSON string', () => {

@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { withAdminAuth } from '@/lib/middleware'
 
 // Инициализация начальных данных
-export const POST = withAdminAuth(async (request: NextRequest) => {
+export const POST = withAdminAuth(async (_request: NextRequest) => {
   try {
     // Проверяем, есть ли уже номера
     const existingRooms = await db.room.count()

@@ -15,10 +15,10 @@ interface HeroProps {
   currentSlide: number
   setCurrentSlide: (index: number) => void
   rooms: Room[]
-  onRoomClick: (room: Room) => void
+  onRoomClick?: (room: Room) => void
 }
 
-export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms, onRoomClick }: HeroProps) {
+export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms }: HeroProps) {
   const { t, lang } = useLanguage()
   
   return (
@@ -58,8 +58,8 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
           <div className="relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
             <div className="absolute inset-0 flex items-center justify-center">
               {allRoomImages.map((item, index) => {
-                const room = rooms.find(r => r.id === item.roomId)
-                const roomName = room ? getLocalizedValue(room.name, lang, item.roomName) : item.roomName
+                const roomData = rooms.find(r => r.id === item.roomId)
+                const roomName = roomData ? getLocalizedValue(roomData.name, lang, item.roomName) : item.roomName
                 
                 return (
                   <div 

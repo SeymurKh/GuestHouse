@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { getLocalizedValue, parseLocalizedStringToForm, createLocalizedString } from '../lib/localize'
-import { type Language } from '../lib/i18n'
 
 describe('localize utilities', () => {
   it('returns fallback when value is null', () => {

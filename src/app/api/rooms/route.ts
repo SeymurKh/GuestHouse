@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { withAdminAuth, validateInput, sanitize, isValidId, sanitizeBoolean } from '@/lib/middleware'
+import { withAdminAuth, validateInput, sanitize, isValidId } from '@/lib/middleware'
 
 // Helper to normalize JSON-compatible room fields
 function normalizeJsonField(value: unknown): Prisma.InputJsonValue {

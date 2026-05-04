@@ -117,7 +117,13 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
       return NextResponse.json({ error: 'Недопустимое имя файла' }, { status: 400 })
     }
 
-    const filepath = path.join(process.cwd(), 'public/uploads', targetFilename)
+    const uploadsDir = path.resolve(process.cwd(), 'public/uploads')
+    const filepath = path.resolve(uploadsDir, targetFilename)
+    
+    // Защита от path traversal
+    if (!filepath.startsWith(uploadsDir + path.sep)) {
+      return NextResponse.json({ error: 'Недопустимый путь к файлу' }, { status: 400 })
+    }
     
     if (!existsSync(filepath)) {
       return NextResponse.json({ error: 'Файл не найден' }, { status: 404 })

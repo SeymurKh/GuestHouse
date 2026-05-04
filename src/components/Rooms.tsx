@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, ArrowRight } from 'lucide-react'
 import { Room } from '@/types'

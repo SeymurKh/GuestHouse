@@ -72,7 +72,10 @@ export function verifyPassword(inputPassword: string, correctPassword: string): 
 }
 
 export function generateAdminToken(): string {
-  const secret = process.env.ADMIN_PASSWORD ?? ''
+  const secret = process.env.ADMIN_PASSWORD
+  if (!secret) {
+    throw new Error('ADMIN_PASSWORD environment variable is required')
+  }
   const timestamp = Date.now().toString()
   const signature = crypto.createHmac('sha256', secret).update(timestamp).digest('hex')
   return `${timestamp}.${signature}`
@@ -93,8 +96,8 @@ export function getAuthTokenFromRequest(request: NextRequest): string | null {
 export function withAdminAuth(
   handler: (request: NextRequest) => Promise<Response>
 ): (request: NextRequest) => Promise<Response> {
-  return async (request: NextRequest) => {
-    const token = getAuthTokenFromRequest(request)
+  return async (_request: NextRequest) => {
+    const token = getAuthTokenFromRequest(_request)
     
     if (!verifyAdminToken(token)) {
       return NextResponse.json(
@@ -103,7 +106,7 @@ export function withAdminAuth(
       )
     }
     
-    return handler(request)
+    return handler(_request)
   }
 }
 
