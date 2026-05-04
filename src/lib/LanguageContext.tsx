@@ -30,7 +30,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLangState(saved)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Save language to localStorage

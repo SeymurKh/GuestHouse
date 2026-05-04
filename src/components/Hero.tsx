@@ -20,7 +20,7 @@ interface HeroProps {
 
 export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, rooms }: HeroProps) {
   const { t, lang } = useLanguage()
-  
+
   return (
     <section className="relative z-10 min-h-screen flex items-center pt-20 pb-8">
       <div className="container mx-auto px-4 h-full">
@@ -53,37 +53,37 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
               </Button>
             </div>
           </div>
-          
+
           {/* Right Side - Sliding Images */}
           <div className="relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px]">
             <div className="absolute inset-0 flex items-center justify-center">
-              {allRoomImages.map((item, index) => {
+              {allRoomImages.map((item, idx) => {
                 const roomData = rooms.find(r => r.id === item.roomId)
                 const roomName = roomData ? getLocalizedValue(roomData.name, lang, item.roomName) : item.roomName
-                
+
                 return (
-                  <div 
-                    key={`${item.roomId}-${index}`}
+                  <div
+                    key={`${item.roomId}-${idx}`}
                     className={`absolute w-full max-w-md transition-all duration-1000 ease-in-out ${
-                      index === currentSlide 
-                        ? 'opacity-100 translate-x-0 scale-100' 
-                        : index < currentSlide 
+                      idx === currentSlide
+                        ? 'opacity-100 translate-x-0 scale-100'
+                        : idx < currentSlide
                           ? 'opacity-0 -translate-x-full scale-95'
                           : 'opacity-0 translate-x-full scale-95'
                     }`}
                   >
-                    <div 
-                      className="overflow-hidden rounded-2xl shadow-2xl transition-all duration-300" 
+                    <div
+                      className="overflow-hidden rounded-2xl shadow-2xl transition-all duration-300"
                     >
                       <div className="relative h-56 sm:h-64">
-                        <Image 
-                          src={item.image || '/images/hero-bg.jpg'} 
+                        <Image
+                          src={item.image || '/images/hero-bg.jpg'}
                           alt={roomName}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 448px"
                           className="object-cover"
-                          priority={index === currentSlide}
-                          loading={index === currentSlide ? "eager" : "lazy"}
+                          priority={idx === currentSlide}
+                          loading={idx === currentSlide ? "eager" : "lazy"}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-4 right-4">
@@ -102,15 +102,15 @@ export function Hero({ phone, allRoomImages, currentSlide, setCurrentSlide, room
                 )
               })}
             </div>
-            
+
             {/* Slide Indicators */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2 flex-wrap justify-center max-w-[200px]">
-              {allRoomImages.map((_, index) => (
+              {allRoomImages.map((_, idx) => (
                 <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-primary w-6' : 'bg-white/30 hover:bg-white/50'
+                    idx === currentSlide ? 'bg-primary w-6' : 'bg-white/30 hover:bg-white/50'
                   }`}
                 />
               ))}

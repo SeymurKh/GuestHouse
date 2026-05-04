@@ -112,11 +112,11 @@ export function RoomModal({ room, open, onOpenChange, phone, currentImageIndex, 
             {/* Thumbnails - All images in grid rows */}
             {images.length > 1 && (
               <div className="grid grid-cols-5 sm:grid-cols-5 gap-1.5 sm:gap-2">
-                {images.map((img: string, i: number) => (
+                {images.map((img: string, idx: number) => (
                   <button 
-                    key={i} 
-                    onClick={() => setCurrentImageIndex(i)} 
-                    className={`relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
+                    key={idx} 
+                    onClick={() => setCurrentImageIndex(idx)} 
+                    className={`relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-muted-foreground/30'}`}
                   >
                     <Image src={img} alt="" fill sizes="100px" className="object-cover" />
                   </button>

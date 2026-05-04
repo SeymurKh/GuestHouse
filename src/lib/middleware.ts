@@ -96,8 +96,8 @@ export function getAuthTokenFromRequest(request: NextRequest): string | null {
 export function withAdminAuth(
   handler: (request: NextRequest) => Promise<Response>
 ): (request: NextRequest) => Promise<Response> {
-  return async (_request: NextRequest) => {
-    const token = getAuthTokenFromRequest(_request)
+  return async (request: NextRequest) => {
+    const token = getAuthTokenFromRequest(request)
     
     if (!verifyAdminToken(token)) {
       return NextResponse.json(
@@ -106,7 +106,7 @@ export function withAdminAuth(
       )
     }
     
-    return handler(_request)
+    return handler(request)
   }
 }
 

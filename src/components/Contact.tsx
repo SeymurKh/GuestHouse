@@ -17,12 +17,12 @@ interface ContactProps {
 
 export function Contact({ phone, reviews, currentReview, setCurrentReview }: ContactProps) {
   const { t } = useLanguage()
-  
+
   return (
     <section id="contact" className="relative z-10 min-h-screen flex items-center py-16 bg-primary text-white">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
-          
+
           {/* Left - Contact Info */}
           <div>
             <Badge className="mb-4 bg-white/20 text-white border-white/30">{t.contact.badge}</Badge>
@@ -30,7 +30,7 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
             <p className="text-white/80 mb-6 text-sm md:text-base">
               {t.contact.description}
             </p>
-            
+
             <div className="space-y-3 mb-6">
               <a href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 group">
                 <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center group-hover:bg-[#20BD5A] transition-colors">
@@ -61,17 +61,17 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
               </div>
             </div>
           </div>
-          
+
           {/* Right - Floating Reviews */}
           <div className="relative h-[400px] lg:h-[500px]">
             <div className="absolute inset-0 flex items-center justify-center">
-              {reviews.map((review, reviewIndex) => (
+              {reviews.map((review, idx) => (
                 <div
                   key={review.id}
                   className={`absolute w-full max-w-sm transition-all duration-700 ease-in-out ${
-                    reviewIndex === currentReview 
-                      ? 'opacity-100 scale-100 translate-y-0' 
-                      : reviewIndex < currentReview 
+                    idx === currentReview
+                      ? 'opacity-100 scale-100 translate-y-0'
+                      : idx < currentReview
                         ? 'opacity-0 scale-90 -translate-y-10'
                         : 'opacity-0 scale-90 translate-y-10'
                   }`}
@@ -85,9 +85,9 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                       </div>
                       <p className="text-white/90 italic mb-4 text-sm md:text-base">&ldquo;{review.comment}&rdquo;</p>
                       <div className="flex items-center gap-3">
-                        <Image 
-                          src="/booking-logo.svg" 
-                          alt="Booking.com" 
+                        <Image
+                          src="/booking-logo.svg"
+                          alt="Booking.com"
                           width={40}
                           height={40}
                           className="w-10 h-10 rounded"
@@ -99,15 +99,15 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                 </div>
               ))}
             </div>
-            
+
             {/* Review indicators */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
-              {reviews.map((_, index) => (
+              {reviews.map((_, idx) => (
                 <button
-                  key={index}
-                  onClick={() => setCurrentReview(index)}
+                  key={idx}
+                  onClick={() => setCurrentReview(idx)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentReview ? 'bg-white w-6' : 'bg-white/30 hover:bg-white/50'
+                    idx === currentReview ? 'bg-white w-6' : 'bg-white/30 hover:bg-white/50'
                   }`}
                 />
               ))}
