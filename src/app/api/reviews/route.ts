@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { db } from '@/lib/db'
 import { withAdminAuth, validateInput, sanitize, sanitizeBoolean, getAuthTokenFromRequest, verifyAdminToken, isValidId } from '@/lib/middleware'
 
@@ -97,9 +96,6 @@ export const PUT = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json(review)
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
-      return NextResponse.json({ error: 'Отзыв не найден' }, { status: 404 })
-    }
     console.error('[Review Update Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при обновлении отзыва' }, { status: 500 })
   }
@@ -121,9 +117,6 @@ export const DELETE = withAdminAuth(async (request: NextRequest) => {
 
     return NextResponse.json({ success: true, message: 'Отзыв удален' })
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
-      return NextResponse.json({ error: 'Отзыв не найден' }, { status: 404 })
-    }
     console.error('[Review Delete Error]', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Ошибка при удалении отзыва' }, { status: 500 })
   }
