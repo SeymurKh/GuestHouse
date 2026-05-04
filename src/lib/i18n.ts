@@ -212,7 +212,7 @@ export const translations = {
       minibar: 'Mini-bar',
       bath: 'Vanna',
       shower: 'Duş',
-      fireplace: 'Möhtəşəm',
+      fireplace: 'Ocaq',
       kitchen: 'Mətbəx',
       parking: 'Parkovka',
       safe: 'Seyf',

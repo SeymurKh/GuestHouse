@@ -41,13 +41,13 @@ export function Contact({ phone, reviews, currentReview, setCurrentReview }: Con
                   <p className="font-medium">{phone}</p>
                 </div>
               </a>
-              <a href="mailto:info@guesthouse-gabala.az" className="flex items-center gap-3 group">
+              <a href="mailto:info@guesthouse-ivanovka.az" className="flex items-center gap-3 group">
                 <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
                   <p className="text-xs text-white/60">{t.contact.email}</p>
-                  <p className="font-medium">info@guesthouse-gabala.az</p>
+                  <p className="font-medium">info@guesthouse-ivanovka.az</p>
                 </div>
               </a>
               <div className="flex items-center gap-3">

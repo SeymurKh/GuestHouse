@@ -12,7 +12,6 @@ interface HeaderProps {
   mobileMenuOpen: boolean
   setMobileMenuOpen: (open: boolean) => void
 }
-
 export function Header({ phone, mobileMenuOpen, setMobileMenuOpen }: HeaderProps) {
   const { lang, setLang, t } = useLanguage()
 

@@ -129,7 +129,6 @@
 /* Smooth scrolling with snap */
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
   overflow-x: hidden;
 }
 
@@ -139,11 +138,11 @@ body {
   background: transparent;
 }
 
-/* Snap points for sections */
-section {
+/* Snap points for sections - disabled for better UX */
+/* section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-}
+} */
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

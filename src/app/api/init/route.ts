@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { withAdminAuth } from '@/lib/middleware'
 
 // Инициализация начальных данных
-export const POST = withAdminAuth(async (_request: NextRequest) => {
+export const POST = withAdminAuth(async () => {
   try {
     // Проверяем, есть ли уже номера
     const existingRooms = await db.room.count()
@@ -30,7 +30,7 @@ export const POST = withAdminAuth(async (_request: NextRequest) => {
           price: 200,
           capacity: 3,
           amenities: ['Wi-Fi', 'Камин', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка'],
-          images: ['/images/room-cottage.jpg', '/images/room-standard.jpg'],
+          images: ['/uploads/1777649519209-r3g6cl.jpg', '/uploads/1777650210140-6051oi.jpg'],
           isAvailable: true
         },
         {
@@ -49,7 +49,7 @@ export const POST = withAdminAuth(async (_request: NextRequest) => {
           price: 400,
           capacity: 5,
           amenities: ['Wi-Fi', 'Камин', 'Джакузи', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка', '2 спальни'],
-          images: ['/images/room-family.jpg', '/images/room-cottage.jpg'],
+          images: ['/uploads/1777650213066-2dtfbl.jpg', '/uploads/1777649519209-r3g6cl.jpg'],
           isAvailable: true
         }
       ]
@@ -59,9 +59,9 @@ export const POST = withAdminAuth(async (_request: NextRequest) => {
     await db.siteSettings.create({
       data: {
         phone: '+994 50 123 45 67',
-        email: 'info@guesthouse-gabala.az',
-        address: 'Азербайджан, Габала, горно-лесная местность',
-        description: 'Уютный гостевой дом в горах Габалы. Отдых в окружении величественных гор и густых лесов.'
+        email: 'info@guesthouse-ivanovka.az',
+        address: 'Азербайджан, Исмаиллы',
+        description: 'Уютный гостевой дом в горах Азербайджана. Отдых в окружении величественных гор и густых лесов.'
       }
     })
 
@@ -95,7 +95,7 @@ export const POST = withAdminAuth(async (_request: NextRequest) => {
         {
           guestName: 'Рафик Гасанов',
           rating: 5,
-          comment: 'Лучший отдых в Габале! Тишина, природа, чистый воздух. Домики очень уютные и чистые. Обязательно вернемся снова.',
+          comment: 'Лучший отдых! Тишина, природа, чистый воздух. Домики очень уютные и чистые. Обязательно вернемся снова.',
           isApproved: true
         }
       ]

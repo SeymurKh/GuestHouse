@@ -29,7 +29,7 @@ async function main() {
         price: 200,
         capacity: 3,
         amenities: JSON.stringify(['Wi-Fi', 'Камин', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка']),
-        images: JSON.stringify(['/uploads/1777498187856-7s0xhe.jpg', '/uploads/1777498190875-wcbkea.jpg', '/uploads/1777498193236-gld0ie.jpg']),
+        images: JSON.stringify(['/uploads/1777649519209-r3g6cl.jpg', '/uploads/1777650210140-6051oi.jpg']),
         isAvailable: true
       },
       {
@@ -48,7 +48,7 @@ async function main() {
         price: 400,
         capacity: 5,
         amenities: JSON.stringify(['Wi-Fi', 'Камин', 'Джакузи', 'ТВ', 'Кухня', 'Терраса', 'Барбекю', 'Парковка', '2 спальни']),
-        images: JSON.stringify(['/uploads/1777498406724-4esf2b.jpg', '/uploads/1777498408483-cnr0mj.jpg', '/uploads/1777498427403-nf4jfl.jpg']),
+        images: JSON.stringify(['/uploads/1777650213066-2dtfbl.jpg', '/uploads/1777649519209-r3g6cl.jpg']),
         isAvailable: true
       }
     ]
